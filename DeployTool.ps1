@@ -159,9 +159,11 @@ $WPF_Search.Add_Click({
 
 
 })
+
 $WPF_Service.SelectedIndex = 0
 $WPF_Site.SelectedIndex = 0
 $WPF_Machine.SelectedIndex = 0
+
 # Remplissage automatique du champ ComputerName
 
 $WPF_Generer.Add_Click({
@@ -231,14 +233,16 @@ foreach ($TaskSequence in $TaskSequencesList) {
   }
 }
 
-
 ##############################################################################
 #                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
 ############################################################################## 
-<#$WPF_Create.Add_Click({
-  New-MDTComputer -macaddress -description @settings ()
+$WPF_Create.Add_Click({
+  $MacAddress = $WPF_MacAddress.Text
+  $ComputerName = $WPF_ComputerName.Text
+  $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
+  New-MDTComputer -macAddress "$MacAddress"  -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; TaskSequenceID="$TaskSequenceSelect"}
 })
-#>
+
 
 
 $WPF_Create.Add_Click({
