@@ -2,6 +2,15 @@
 foreach ($item in $(gci .\assembly\ -Filter *.dll).name) {
     [Void][System.Reflection.Assembly]::LoadFrom("assembly\$item")
 }
+#########################################################################
+#                        Import Module                                  #
+#########################################################################
+$path = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+
+Import-Module -Name "$Path\services\functions.psm1"
+
+Import-Module -Name MDTDB
+
 
 #########################################################################
 #                        Load Main Panel                                #
@@ -21,7 +30,7 @@ $Form = [Windows.Markup.XamlReader]::Load($reader)
 
 
 #########################################################################
-#                       Functions       								#
+#                       Functions                       								#
 #########################################################################
 $XamlMainWindow.SelectNodes("//*[@Name]") | %{
     try {Set-Variable -Name "$("WPF_"+$_.Name)" -Value $Form.FindName($_.Name) -ErrorAction Stop}
@@ -53,138 +62,26 @@ Function New-MahappsMessage {
   
 }
 
-
-Function AutoNameComputer {
-  param(
-    [Parameter(Mandatory,Position=0)]
-    [string]$Site,
-    [Parameter(Mandatory,Position=1)]
-    [string]$Machine,
-    [Parameter(Mandatory,Position=2)]
-    [string]$Service  
-  )
-
- 
-  #########################################################################
-  #                            Variables                                  #
-  #########################################################################
-  begin{
-
-    $i=0
-    $j=0
-    $Count=0
-    $Number="0","1","2","3","4","5","6","7","8","9"
-    $Type=''
-    $NewNameChar=''
-    $LastName=''
-    $LastNameInt=''
-
-    #########################################################################
-    #                            Search Name                                #
-    #########################################################################
-
-
-    switch ($Site)
-    {
-        "Croix-Rousse"{$S='CR'}
-    }
-
-    switch ($Machine)
-    {
-        "Client"{$Os='CLI'}
-        "Serveur"{$Os='SRV'}
-    }
-
-
-    switch ($Service)
-    {
-        "Administration"{$Ser='ADMIN'}
-        "Direction"{$Ser='DIR'}
-        "Informatique"{$Ser='INFO'}
-        "Laboratoire"{$Ser='LABO'}
-        "Pharmacie"{$Ser='PHARMA'}
-        "Radiologie"{$Ser='RADIO'}
-        "Recherche et Developpement"{$Ser='RD'}
-        "Ressources Humaines"{$ser='RH'}
-        "Aides-Soignantes"{$ser='AS'}
-        "Medecins"{$ser='MED'}
-        "Infirmieres"{$ser='INFI'}
-    }
-
-    $ListName=(Get-ADComputer -Filter "Name -like '$S-$Os-$Ser*'" -Properties Name).name
-  
-  }
-
-  process{
-
-    if ($null -eq $ListName){
-        $NewName="$S-$Os-$Ser"+"1"
-    }
-
-    else {
-        $Type=($ListName.GetType().FullName)
-
-
-        if ($Type -eq 'System.Object[]' ) {
-            $LastName=$ListName[-1]
-        }
-        elseif ($Type -eq 'System.String') {
-            $LastName=$ListName
-        }
-        else {
-            Write-Output 'Error'
-        }
-
-
-            #########################################################################
-            #                              Auto Name                                #
-            #########################################################################
-
-        for ($i = -1; $i -lt $array.Count; $i--) {
-            if ($LastName[$i] -in $Number) {
-                $Count +=1
-            }
-            else {
-                break
-            } 
-        }
-
-        $nb = $LastName.Length-$Count
-
-        while (!($j -eq $nb)) {
-            $NewNameChar += $LastName[$j]
-            $j+=1
-        }
-
-
-        while (!($nb -eq $LastName.Length)) {
-            $LastNameInt += $LastName[$nb]
-            $nb+=1
-        }
-
-        $NewNameInt=([int]$LastNameInt)+1
-
-        $NewName="$NewNameChar"+"$NewNameInt"
-
-    }
-  }
-
-  end{
-    return "$NewName"
-  }   
-
-}
-
-
-
 #########################################################################
 #                       DATA       						       		    #
 #########################################################################
 
 #Données obligatoires à modifier 
-$ServeurMDT = 
-$DeploymentShareSMB =
+$ServeurMDT = "CR-SRV-MDT1"
+$DeploymentShareSMB = "DEPLOYMENTSHARE$"
+$ServeurSQL = "CR-SRV-MDT1"
 
+<#
+try {
+  Connect-MDTDatabase -sqlServer $ServeurSQL -database MDT
+
+  $WPF_ConnectValidation.Color = "Green"
+
+}
+catch {
+  
+}
+#>
 
 $WPF_Theme.Add_Click({
   $Theme1 = [ControlzEx.Theming.ThemeManager]::Current.DetectTheme($form)
@@ -261,6 +158,21 @@ foreach ($item in $Machines) {
   $WPF_Machine.Items.Add($item) 
 }
 
+$WPF_Search.Add_Click({
+  $Recherche='12'
+  $ResultSearch = Search -Filter $Recherche
+  if ($ResultSearch -eq $Null) {
+    New-MahappsMessage -title 'Recherche' -Message 'Aucun element trouvé'
+  }
+  else {
+    New-MahappsMessage -title 'Recherche' -Message $ResultSearch
+  }
+
+
+})
+$WPF_Service.SelectedIndex = 0
+$WPF_Site.SelectedIndex = 0
+$WPF_Machine.SelectedIndex = 0
 # Remplissage automatique du champ ComputerName
 
 $WPF_Generer.Add_Click({
@@ -301,7 +213,7 @@ $WPF_ComputerName.Add_TextChanged -and $WPF_MacAddress.Add_TextChanged({
 })
 
 ##############################################################################
-#                           RECHERCHE / AFFICHAGE SEQUENCES DE TACHES                                          #
+#                  RECHERCHE / AFFICHAGE SEQUENCES DE TACHES                 #
 ############################################################################## 
 <#[XML]$TaskSequencesFile = Get-Content -path \$ServeurMDT\$DeploymentShareSMB\Control\TaskSequences.xml
 $TaskSequencesList = $TaskSequencesFile.tss.ts
@@ -310,8 +222,16 @@ foreach ($TaskSequence in $TaskSequencesList) {
   $GroupsList = New-Object PSObject
   $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.Name -passthru
   $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Description -passthru	
-  $WPF_Group.Items.Add($GroupsList) > $null
+  $WPF_TaskSequences.Items.Add($GroupsList) > $null
 }
+#>
+
+##############################################################################
+#                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
+############################################################################## 
+<#$WPF_Create.Add_Click({
+  New-MDTComputer -macaddress -description @settings ()
+})
 #>
 
 
