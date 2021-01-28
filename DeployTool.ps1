@@ -71,17 +71,6 @@ $ServeurMDT = "CR-SRV-MDT1"
 $DeploymentShareSMB = "DEPLOYMENTSHARE$"
 $ServeurSQL = "CR-SRV-MDT1"
 
-<#
-try {
-  Connect-MDTDatabase -sqlServer $ServeurSQL -database MDT
-
-  $WPF_ConnectValidation.Color = "Green"
-
-}
-catch {
-  
-}
-#>
 
 $WPF_Theme.Add_Click({
   $Theme1 = [ControlzEx.Theming.ThemeManager]::Current.DetectTheme($form)
@@ -200,7 +189,7 @@ $WPF_Generer.Add_Click({
 #>
 
 ##############################################################################
-#                           ACTIVATION DE LA VALIDATION                                          #
+#                           ACTIVATION DE LA VALIDATION                       #
 ############################################################################## 
 
 $WPF_ComputerName.Add_TextChanged -and $WPF_MacAddress.Add_TextChanged({
@@ -213,18 +202,35 @@ $WPF_ComputerName.Add_TextChanged -and $WPF_MacAddress.Add_TextChanged({
 })
 
 ##############################################################################
+#                           CONNECTION A LA  BDD                             #
+############################################################################## 
+$WPF_ComputerName.Add_TextChanged({
+  try {
+    Connect-MDTDatabase -sqlServer $ServeurSQL -instance SQLEXPRESS -database MDT
+  
+    #$WPF_ConnectValidation.Color = "Green"
+  
+  }
+  catch {
+    New-MahappsMessage -title "Erreur" -Message "Le serveur $ServeurSQL n'est pas accessible"
+  }
+  
+})
+##############################################################################
 #                  RECHERCHE / AFFICHAGE SEQUENCES DE TACHES                 #
 ############################################################################## 
-<#[XML]$TaskSequencesFile = Get-Content -path \$ServeurMDT\$DeploymentShareSMB\Control\TaskSequences.xml
+[XML]$TaskSequencesFile = Get-Content -path \\$ServeurMDT\$DeploymentShareSMB\Control\TaskSequences.xml
 $TaskSequencesList = $TaskSequencesFile.tss.ts
 
 foreach ($TaskSequence in $TaskSequencesList) {
-  $GroupsList = New-Object PSObject
-  $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.Name -passthru
-  $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Description -passthru	
-  $WPF_TaskSequences.Items.Add($GroupsList) > $null
+  if($TaskSequence.enable -eq "True"){
+    $GroupsList = New-Object PSObject
+    $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
+    $GroupsList = $GroupsList | Add-Member NoteProperty Nom $TaskSequence.Name -passthru	
+    $WPF_TaskSequences.Items.Add($GroupsList) > $null
+  }
 }
-#>
+
 
 ##############################################################################
 #                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
