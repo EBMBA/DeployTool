@@ -7,7 +7,7 @@ foreach ($item in $(gci .\assembly\ -Filter *.dll).name) {
 #########################################################################
 $path = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 
-Import-Module -Name "$Path\services\functions.psm1"
+Import-Module -Name "$Path\services\Functions.psm1"
 
 Import-Module -Name MDTDB
 
