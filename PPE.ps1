@@ -7,9 +7,7 @@ foreach ($item in $(gci .\assembly\ -Filter *.dll).name) {
 #########################################################################
 $path = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 
-Import-Module -Name "$Path\services\AutoNameComputer.psm1"
-Import-Module -Name "$Path\services\GetService.psm1"
-Import-Module -Name "$Path\services\Search.psm1"
+Import-Module -Name "$Path\services\functions.psm1"
 
 Import-Module -Name MDTDB
 
@@ -172,7 +170,9 @@ $WPF_Search.Add_Click({
 
 
 })
-
+$WPF_Service.SelectedIndex = 0
+$WPF_Site.SelectedIndex = 0
+$WPF_Machine.SelectedIndex = 0
 # Remplissage automatique du champ ComputerName
 
 $WPF_Generer.Add_Click({
