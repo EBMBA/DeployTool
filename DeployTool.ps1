@@ -286,7 +286,8 @@ $WPF_Create.Add_Click({
   $ComputerName = $WPF_ComputerName.Text
   $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
   $MachineObjectOU =(Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName  
-  New-MDTComputer -macAddress "$MacAddress"  -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName"; TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=; MachineObjectOU=$MachineObjectOU;SkipFinalSummary=$SkipFinalSummary;}
+  New-MDTComputer -macAddress "$MacAddress"  -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
+   TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=; MachineObjectOU=$MachineObjectOU;SkipFinalSummary=$SkipFinalSummary;}
 })
 
 $WPF_Create.Add_Click({
