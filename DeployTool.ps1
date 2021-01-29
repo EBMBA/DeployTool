@@ -206,15 +206,36 @@ $WPF_ComputerName.Add_TextChanged -and $WPF_MacAddress.Add_TextChanged({
 ##############################################################################
 #                           CONNECTION A LA  BDD                             #
 ############################################################################## 
-$WPF_ComputerName.Add_TextChanged({
+$Form.Add_ContentRendered({
   try {
     Connect-MDTDatabase -sqlServer $ServeurSQL -instance SQLEXPRESS -database MDT
-  
-    #$WPF_ConnectValidation.Color = "Green"
-  
+    
+    $title = "DeployTools"
+    $Message = "Vous ête connecté au serveur de base de donnée $ServeurSQL"
+    $Type = "Info"
+
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+    $notify = new-object system.windows.forms.notifyicon
+    $notify.icon = $icon
+    $notify.visible = $true
+    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
   }
   catch {
-    New-MahappsMessage -title "Erreur" -Message "Le serveur $ServeurSQL n'est pas accessible"
+    #New-MahappsMessage -title "Erreur" -Message "Le serveur $ServeurSQL n'est pas accessible"
+
+    $title = "DeployTools"
+    $Message = "Le serveur de base de donnée $ServeurSQL n'est pas accessible"
+    $Type = "Error"
+
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+    $notify = new-object system.windows.forms.notifyicon
+    $notify.icon = $icon
+    $notify.visible = $true
+    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
   }
   
 })
@@ -230,17 +251,26 @@ foreach ($TaskSequence in $TaskSequencesList) {
     $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
     $GroupsList = $GroupsList | Add-Member NoteProperty Nom $TaskSequence.Name -passthru	
     $WPF_TaskSequences.Items.Add($GroupsList) > $null
-  }
-  if(($WPF_TaskSequences.Items).count -eq 0){
-    $Message = "Aucun"
-    $GroupsList = New-Object PSObject  
-    $GroupsList = $GroupsList | Add-Member NoteProperty ID -value $Message -PassThru
-    $GroupsList =$GroupsList | Add-Member NoteProperty Nom -value $Message -PassThru
-    $WPF_TaskSequences.Items.Add($GroupsList) > $null
-    $WPF_TaskSequences.Columns.IsReadOnly
-    #$WPF_TaskSequences.Columns.RemoveAt(0)
+    <#
+      if(($WPF_TaskSequences.Items).count -eq 0){
+      $Message = "Aucun"
+      $GroupsList = New-Object PSObject  
+      $GroupsList = $GroupsList | Add-Member NoteProperty ID -value $Message -PassThru
+      $GroupsList =$GroupsList | Add-Member NoteProperty Nom -value $Message -PassThru
+      $WPF_TaskSequences.Items.Add($GroupsList) > $null
+      $WPF_TaskSequences.Columns.IsReadOnly
+      #$WPF_TaskSequences.Columns.RemoveAt(0)
+    }
+    #>
   }
 }
+
+# Erreur aucune TS active
+$Form.Add_ContentRendered({
+  if($null -eq $TaskSequencesList){
+    New-MahappsMessage -title "Error" -Message "Aucune TaskSequences d'active"
+  }
+})
 
 ##############################################################################
 #                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
