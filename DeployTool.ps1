@@ -62,8 +62,42 @@ Function New-MahappsMessage {
   
 }
 
+function Decode-SecureStringPassword
+{
+    [CmdletBinding()]
+    [Alias('dssp')]
+    [OutputType([string])]
+    Param
+    (
+        # Param1 help description
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,                   
+                   Position=0) ]     
+        $password 
+    )
+    Begin
+    {
+    }
+    Process
+    {        
+       return [System.Runtime.InteropServices.Marshal]::PtrToStringUni([System.Runtime.InteropServices.Marshal]::SecureStringToCoTaskMemUnicode($password))              
+    }
+    End
+    {
+    }
+}
 #########################################################################
-#                       DATA       						       		    #
+#                       MOT DE PASSE MDT-User	       		                #
+#########################################################################
+<#if()
+  $password = Get-Credential
+  Export-Clixml -path $path\testpassword.pwd -InputObject $password
+ 
+$import=Import-Clixml -Path D:\testpassword.pwd
+$mdp=Decode-SecureStringPassword $import.Password
+#>
+#########################################################################
+#                       DATA       						       		                #
 #########################################################################
 
 #Données obligatoires à modifier 
@@ -75,7 +109,7 @@ $DomainRoot = (get-ADDomain).DNSRoot
 $JoinDomain = "$DomainRoot"
 $DomainAdmin ="MDT-BA"
 $DomainAdminDomain = "$DomainRoot"
-$DomainAdminPassword =
+$DomainAdminPassword = ''
 $SkipFinalSummary= "No"
 
 $WPF_Theme.Add_Click({
