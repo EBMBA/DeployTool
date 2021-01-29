@@ -231,6 +231,15 @@ foreach ($TaskSequence in $TaskSequencesList) {
     $GroupsList = $GroupsList | Add-Member NoteProperty Nom $TaskSequence.Name -passthru	
     $WPF_TaskSequences.Items.Add($GroupsList) > $null
   }
+  if(($WPF_TaskSequences.Items).count -eq 0){
+    $Message = "Aucun"
+    $GroupsList = New-Object PSObject  
+    $GroupsList = $GroupsList | Add-Member NoteProperty ID -value $Message -PassThru
+    $GroupsList =$GroupsList | Add-Member NoteProperty Nom -value $Message -PassThru
+    $WPF_TaskSequences.Items.Add($GroupsList) > $null
+    $WPF_TaskSequences.Columns.IsReadOnly
+    #$WPF_TaskSequences.Columns.RemoveAt(0)
+  }
 }
 
 ##############################################################################
