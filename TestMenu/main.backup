@@ -30,7 +30,7 @@
                <iconPacks:PackIconFontAwesome Kind="GitlabBrands"/>
             </StackPanel>
          </Button>
-      </Controls:WindowCommands>
+               </Controls:WindowCommands>
    </Controls:MetroWindow.LeftWindowCommands>
    <Controls:MetroWindow.RightWindowCommands>
       <Controls:WindowCommands>
@@ -149,8 +149,8 @@
                            ElementStyle="{DynamicResource MetroDataGridCheckBox}"
                            Header="IsSelected"
                            Width="88"/>
-                        <DataGridTextColumn Binding="{Binding Name}" Header="ID" Width="88"/>
-                        <DataGridTextColumn Binding="{Binding Status}" Header="Nom de la séquence" Width="204"/>
+                        <DataGridTextColumn Binding="{Binding ID}" Header="ID" Width="88"/>
+                        <DataGridTextColumn Binding="{Binding Nom}" Header="Nom" Width="204"/>
                      </DataGrid.Columns>
                   </DataGrid>
                </StackPanel>

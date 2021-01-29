@@ -13,8 +13,48 @@
          </ResourceDictionary.MergedDictionaries>
       </ResourceDictionary>
    </Page.Resources>
-   <Grid>
-      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+  <Grid>
+      <StackPanel>
+         <StackPanel HorizontalAlignment="Center" Margin="0,0,0,0" Orientation="Horizontal">
+            <StackPanel Orientation="Vertical">
+               <StackPanel Margin="0,0,0,0" Orientation="Horizontal">
+                  <Image Width="80" Height="80" Source="logo.png">
+                  </Image>
+                  <Label
+                     Margin="0,0,0,0"
+                     Content="Deployment Utility"
+                     FontSize="30"
+                     Foreground="#FF303030">
+                  </Label>
+                </StackPanel>
+            </StackPanel>
+         </StackPanel>
+       <StackPanel>
+            <Canvas Grid.Row="1">
+               <TabControl
+                  Name="Tabcontrol"
+                  Width="800"
+                  Height="700"
+                  HorizontalAlignment="Left"
+                  Margin="0 0 0 0 "
+                  VerticalAlignment="Top"
+                  Controls:TabControlHelper.Underlined="SelectedTabItem"
+                  TabStripPlacement="Left">
+                  <TabItem>
+                     <TabItem.HeaderTemplate>
+                        <DataTemplate>
+                           <StackPanel Orientation="Horizontal">
+                              <iconPacks:PackIconFontAwesome
+                                 Width="24"
+                                 Height="24"
+                                 Margin="0 12 0 0 "
+                                 Kind="QuestionCircleRegular"/>
+                              <Label Margin="2 0 0 0" Content="Info" Foreground="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
+                           </StackPanel>
+                        </DataTemplate>
+                     </TabItem.HeaderTemplate>
+                     
+                       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
          <Label
             Margin="80 0 0 40"
             Content="Ajouter un ordinateur à déployer"
@@ -22,7 +62,7 @@
             FontWeight="Thin"/>
          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
             <StackPanel Orientation="Vertical">
-              <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal">
               <iconPacks:PackIconVaadinIcons Kind="Building"
                      Width="24"
                      Height="24"
@@ -69,7 +109,8 @@
                      Width="24"
                      Height="24"
                      Margin="0 20 5 0"
-                     Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                     Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                      />
                   <Label Content="Nom de l'ordinateur :" FontWeight="Bold" Margin="-2 20 5 0"/>
                   <TextBox
                      Margin="-4 20 5 0"
@@ -103,7 +144,6 @@
                      Height="270"
                      Margin="2,10,2,2"
                      BorderThickness="1"
-                     ColumnWidth="150"
                      ItemsSource="{Binding}"
                      SelectionMode="Single" 
                      >
@@ -114,8 +154,8 @@
                            ElementStyle="{DynamicResource MetroDataGridCheckBox}"
                            Header="IsSelected"
                            Width="88"/>
-                        <DataGridTextColumn Binding="{Binding Name}" Header="ID"/>
-                        <DataGridTextColumn Binding="{Binding Status}" Header="Nom de la séquence"/>
+                        <DataGridTextColumn Binding="{Binding ID}" Header="ID" Width="88"/>
+                        <DataGridTextColumn Binding="{Binding Nom}" Header="Nom" Width="204"/>
                      </DataGrid.Columns>
                   </DataGrid>
                </StackPanel>
@@ -134,21 +174,21 @@
                   Height="30"
                   Margin="5 15 0 0"
                   Content="Exit"/>
-               <Button
+                <Button
                   Name="Generer"
                   Width="60"
                   Height="30"
                   Margin="5 15 0 0"
-                  Content="Générer"/>
-               <Button
-                  Name="Search"
-                  Width="60"
-                  Height="30"
-                  Margin="5 15 0 0"
-                  Content="Search"/>
-             
+                  Content="Générer"/>       
             </StackPanel>
          </StackPanel>
       </StackPanel>
-   </Grid>
+                     
+                  
+             </TabItem>         
+         </TabControl>
+        </Canvas>  
+      </StackPanel>
+    </StackPanel>
+  </Grid>
 </Page>

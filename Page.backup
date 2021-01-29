@@ -22,7 +22,7 @@
             FontWeight="Thin"/>
          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
             <StackPanel Orientation="Vertical">
-              <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal">
               <iconPacks:PackIconVaadinIcons Kind="Building"
                      Width="24"
                      Height="24"
@@ -69,7 +69,8 @@
                      Width="24"
                      Height="24"
                      Margin="0 20 5 0"
-                     Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                     Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                      />
                   <Label Content="Nom de l'ordinateur :" FontWeight="Bold" Margin="-2 20 5 0"/>
                   <TextBox
                      Margin="-4 20 5 0"
@@ -103,7 +104,6 @@
                      Height="270"
                      Margin="2,10,2,2"
                      BorderThickness="1"
-                     ColumnWidth="150"
                      ItemsSource="{Binding}"
                      SelectionMode="Single" 
                      >
@@ -114,8 +114,8 @@
                            ElementStyle="{DynamicResource MetroDataGridCheckBox}"
                            Header="IsSelected"
                            Width="88"/>
-                        <DataGridTextColumn Binding="{Binding Name}" Header="ID"/>
-                        <DataGridTextColumn Binding="{Binding Status}" Header="Nom de la séquence"/>
+                        <DataGridTextColumn Binding="{Binding ID}" Header="ID" Width="88"/>
+                        <DataGridTextColumn Binding="{Binding Nom}" Header="Nom" Width="204"/>
                      </DataGrid.Columns>
                   </DataGrid>
                </StackPanel>
@@ -134,19 +134,20 @@
                   Height="30"
                   Margin="5 15 0 0"
                   Content="Exit"/>
-               <Button
+                <Button
                   Name="Generer"
                   Width="60"
                   Height="30"
                   Margin="5 15 0 0"
-                  Content="Générer"/>
-               <Button
+                  Content="Générer"/>     
+                <Button
                   Name="Search"
                   Width="60"
                   Height="30"
                   Margin="5 15 0 0"
                   Content="Search"/>
              
+                 
             </StackPanel>
          </StackPanel>
       </StackPanel>

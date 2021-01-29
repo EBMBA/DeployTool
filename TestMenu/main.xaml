@@ -14,33 +14,6 @@
    WindowStartupLocation="CenterScreen"
    WindowStyle="None">
 
-
-    <Controls:HamburgerMenu Foreground="White" PaneBackground="#FF444444" IsPaneOpen="False" DisplayMode="CompactOverlay" OptionsItemTemplate="{StaticResource MenuItemTemplate}" ItemTemplate="{StaticResource MenuItemTemplate}">
-        <Controls:HamburgerMenu.ItemsSource>
-            <Controls:HamburgerMenuItemCollection>
-                <Controls:HamburgerMenuGlyphItem Glyph="M" Label="Main Menu" Tag="ShowMainMenu"/>
-                <Controls:HamburgerMenuGlyphItem Glyph="I" Label="Invoice" Tag="OpenInvoiceMaker"/>
-                <Controls:HamburgerMenuGlyphItem Glyph="R" Label="Reports" Tag="ShowReportsMenu"/>
-            </Controls:HamburgerMenuItemCollection>
-        </Controls:HamburgerMenu.ItemsSource>
-        <Controls:HamburgerMenu.OptionsItemsSource>
-            <Controls:HamburgerMenuItemCollection>
-                <Controls:HamburgerMenuGlyphItem Glyph="A" Label="About" Tag="About"/>
-            </Controls:HamburgerMenuItemCollection>
-        </Controls:HamburgerMenu.OptionsItemsSource>
-        <Controls:HamburgerMenu.Content>
-            <DockPanel>
-                <Border Background="#FF444444" DockPanel.Dock="Top">
-                    <TextBlock x:Name="Header" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" Foreground="White" Text="{Binding ActiveItem.DisplayName}" />
-                </Border>
-                <ScrollViewer Grid.Row="1" CanContentScroll="True" IsDeferredScrollingEnabled="False">
-                    <Controls:TransitioningContentControl Transition="LeftReplace" x:Name="ActiveItem" Content="{Binding ActiveItem}"/>
-                </ScrollViewer>
-            </DockPanel>
-        </Controls:HamburgerMenu.Content>
-    </Controls:HamburgerMenu>
-</DockPanel>
-
    <Window.Resources>
       <ResourceDictionary>
          <ResourceDictionary.MergedDictionaries>
@@ -176,8 +149,8 @@
                            ElementStyle="{DynamicResource MetroDataGridCheckBox}"
                            Header="IsSelected"
                            Width="88"/>
-                        <DataGridTextColumn Binding="{Binding Name}" Header="ID" Width="88"/>
-                        <DataGridTextColumn Binding="{Binding Status}" Header="Nom de la séquence" Width="204"/>
+                        <DataGridTextColumn Binding="{Binding ID}" Header="ID" Width="88"/>
+                        <DataGridTextColumn Binding="{Binding Nom}" Header="Nom" Width="204"/>
                      </DataGrid.Columns>
                   </DataGrid>
                </StackPanel>
