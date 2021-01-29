@@ -89,13 +89,24 @@ function Decode-SecureStringPassword
 #########################################################################
 #                       MOT DE PASSE MDT-User	       		                #
 #########################################################################
-<#if()
-  $password = Get-Credential
-  Export-Clixml -path $path\testpassword.pwd -InputObject $password
+$PathPassword = "$path\password.pwd"
+#$PresencePassword = Test-Path $PathPassword
+
+$Form.Add_ContentRendered({
+  $PresencePassword = Test-Path $PathPassword
+  if($false -eq $PresencePassword){
+    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants du MDT_User dans la console powershell puis relancer l'application"
+    $password = Get-Credential
+    Export-Clixml -path $path\password.pwd -InputObject $password
+  }
+  else {
+    $import=Import-Clixml -Path $PathPassword
+    $mdp=Decode-SecureStringPassword $import.Password
+  }
+   
+})
  
-$import=Import-Clixml -Path D:\testpassword.pwd
-$mdp=Decode-SecureStringPassword $import.Password
-#>
+
 #########################################################################
 #                       DATA       						       		                #
 #########################################################################
@@ -109,7 +120,7 @@ $DomainRoot = (get-ADDomain).DNSRoot
 $JoinDomain = "$DomainRoot"
 $DomainAdmin ="MDT-BA"
 $DomainAdminDomain = "$DomainRoot"
-$DomainAdminPassword = ''
+$DomainAdminPassword = $mdp
 $SkipFinalSummary= "No"
 
 $WPF_Theme.Add_Click({
@@ -321,7 +332,7 @@ $WPF_Create.Add_Click({
   $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
   $MachineObjectOU =(Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName  
   New-MDTComputer -macAddress "$MacAddress"  -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
-   TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=; MachineObjectOU=$MachineObjectOU;SkipFinalSummary=$SkipFinalSummary;}
+   TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$DomainAdminPassword; MachineObjectOU=$MachineObjectOU;SkipFinalSummary=$SkipFinalSummary;}
 })
 
 $WPF_Create.Add_Click({
