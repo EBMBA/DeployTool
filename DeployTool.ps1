@@ -90,20 +90,21 @@ function Decode-SecureStringPassword
 #                       MOT DE PASSE MDT-User	       		                #
 #########################################################################
 $PathPassword = "$path\password.pwd"
+[String]$mdp =""
 #$PresencePassword = Test-Path $PathPassword
 
 $Form.Add_ContentRendered({
   $PresencePassword = Test-Path $PathPassword
   if($false -eq $PresencePassword){
-    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants du MDT_User dans la console powershell puis relancer l'application"
+    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants du MDT_User
+     dans la console powershell puis relancer l'application"
     $password = Get-Credential
     Export-Clixml -path $path\password.pwd -InputObject $password
   }
   else {
     $import=Import-Clixml -Path $PathPassword
     $mdp=Decode-SecureStringPassword $import.Password
-  }
-   
+  } 
 })
  
 
@@ -120,7 +121,6 @@ $DomainRoot = (get-ADDomain).DNSRoot
 $JoinDomain = "$DomainRoot"
 $DomainAdmin ="MDT-BA"
 $DomainAdminDomain = "$DomainRoot"
-$DomainAdminPassword = $mdp
 $SkipFinalSummary= "No"
 
 $WPF_Theme.Add_Click({
@@ -184,7 +184,7 @@ $WPF_Machine.add_SelectionChanged({
 ############################################################################## 
 $Services = ('Informatique','Medecins','Infirmieres','Aides-Soignantes','Direction','Laboratoire','Recherche et Developpement','Radiologie','Pharmacie','Administration','Accueil','Ressources Humaines')
 $Sites = ('Croix-Rousse')
-$Machines = ('Client', 'Serveur')
+$Machines = ('Fixe', 'Portable', 'Serveur')
 # Ajout des services, des sites et des types de machines dans les combobox 
 foreach ($item in $Services) {
   $WPF_Service.Items.Add($item) 
@@ -302,24 +302,13 @@ foreach ($TaskSequence in $TaskSequencesList) {
     $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
     $GroupsList = $GroupsList | Add-Member NoteProperty Nom $TaskSequence.Name -passthru	
     $WPF_TaskSequences.Items.Add($GroupsList) > $null
-    <#
-      if(($WPF_TaskSequences.Items).count -eq 0){
-      $Message = "Aucun"
-      $GroupsList = New-Object PSObject  
-      $GroupsList = $GroupsList | Add-Member NoteProperty ID -value $Message -PassThru
-      $GroupsList =$GroupsList | Add-Member NoteProperty Nom -value $Message -PassThru
-      $WPF_TaskSequences.Items.Add($GroupsList) > $null
-      $WPF_TaskSequences.Columns.IsReadOnly
-      #$WPF_TaskSequences.Columns.RemoveAt(0)
-    }
-    #>
   }
 }
 
 # Erreur aucune TS active
 $Form.Add_ContentRendered({
   if($null -eq $TaskSequencesList){
-    New-MahappsMessage -title "Error" -Message "Aucune TaskSequences d'active"
+    New-MahappsMessage -title "Error" -Message "Aucune séquence de tâches d'active"
   }
 })
 
@@ -327,12 +316,17 @@ $Form.Add_ContentRendered({
 #                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
 ############################################################################## 
 $WPF_Create.Add_Click({
+  $DomainAdminPassword = $mdp
   $MacAddress = $WPF_MacAddress.Text
   $ComputerName = $WPF_ComputerName.Text
   $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
-  $MachineObjectOU =(Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName  
-  New-MDTComputer -macAddress "$MacAddress"  -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
-   TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$DomainAdminPassword; MachineObjectOU=$MachineObjectOU;SkipFinalSummary=$SkipFinalSummary;}
+  $Service = $WPF_Service.SelectedItem.ToString()
+  $SearchBase=(Get-ADDomain).DistinguishedName
+  $MachineObjectOU ="OU=Ordinateurs Fixes,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
+  New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
+   TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
+   JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$DomainAdminPassword; MachineObjectOU=$MachineObjectOU;
+   SkipFinalSummary=$SkipFinalSummary;}
 })
 
 $WPF_Create.Add_Click({

@@ -35,7 +35,8 @@ Function AutoNameComputer {
   
       switch ($Machine)
       {
-          "Client"{$Os='CLI'}
+          "Fixe"{$Os='CLI'}
+          "Portable"{$Os='CLI'}
           "Serveur"{$Os='SRV'}
       }
   
