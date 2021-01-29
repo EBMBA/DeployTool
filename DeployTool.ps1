@@ -70,7 +70,13 @@ Function New-MahappsMessage {
 $ServeurMDT = "CR-SRV-MDT1"
 $DeploymentShareSMB = "DEPLOYMENTSHARE$"
 $ServeurSQL = "CR-SRV-MDT1"
-
+$OrgName = "CHL"
+$DomainRoot = (get-ADDomain).DNSRoot
+$JoinDomain = "$DomainRoot"
+$DomainAdmin ="MDT-BA"
+$DomainAdminDomain = "$DomainRoot"
+$DomainAdminPassword =
+$SkipFinalSummary= "No"
 
 $WPF_Theme.Add_Click({
   $Theme1 = [ControlzEx.Theming.ThemeManager]::Current.DetectTheme($form)
@@ -279,10 +285,9 @@ $WPF_Create.Add_Click({
   $MacAddress = $WPF_MacAddress.Text
   $ComputerName = $WPF_ComputerName.Text
   $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
-  New-MDTComputer -macAddress "$MacAddress"  -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; TaskSequenceID="$TaskSequenceSelect"}
+  $MachineObjectOU =(Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName  
+  New-MDTComputer -macAddress "$MacAddress"  -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName"; TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=; MachineObjectOU=$MachineObjectOU;SkipFinalSummary=$SkipFinalSummary;}
 })
-
-
 
 $WPF_Create.Add_Click({
 
