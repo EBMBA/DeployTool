@@ -156,31 +156,32 @@
                </StackPanel>
             </StackPanel>
             <StackPanel Name="S_Button" Margin="10 0 0 0" Orientation="Vertical">
-               <Button
+                <Button
                   Name="Create"
-                  Width="60"
+                  Width="80"
                   Height="30"
                   Margin="5 0 0 0"
-                  Content="Create"
+                  Content="Créer"
                   IsEnabled="False"/>
                <Button
                   Name="Exit"
-                  Width="60"
+                  Width="80"
                   Height="30"
                   Margin="5 15 0 0"
-                  Content="Exit"/>
+                  Content="Quitter"/>
                 <Button
                   Name="Generer"
-                  Width="60"
+                  Width="80"
                   Height="30"
                   Margin="5 15 0 0"
                   Content="Générer"/>     
                 <Button
                   Name="Search"
-                  Width="60"
+                  Width="80"
                   Height="30"
                   Margin="5 15 0 0"
-                  Content="Search"/>
+                  Content="Rechercher"/>
+             
              
                  
             </StackPanel>
