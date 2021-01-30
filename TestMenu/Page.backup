@@ -18,8 +18,7 @@
          <StackPanel HorizontalAlignment="Center" Margin="0,0,0,0" Orientation="Horizontal">
             <StackPanel Orientation="Vertical">
                <StackPanel Margin="0,0,0,0" Orientation="Horizontal">
-                  <Image Width="80" Height="80" Source="logo.png">
-                  </Image>
+
                   <Label
                      Margin="0,0,0,0"
                      Content="Deployment Utility"
@@ -44,6 +43,7 @@
                      <TabItem.HeaderTemplate>
                         <DataTemplate>
                            <StackPanel Orientation="Horizontal">
+                           <iconPacks:PackIconBootstrapIcons Kind="Search" />
                               <iconPacks:PackIconFontAwesome
                                  Width="24"
                                  Height="24"
@@ -54,9 +54,9 @@
                         </DataTemplate>
                      </TabItem.HeaderTemplate>
                      
-                       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
          <Label
-            Margin="80 0 0 40"
+            Margin="40 0 0 40"
             Content="Ajouter un ordinateur à déployer"
             FontSize="25"
             FontWeight="Thin"/>

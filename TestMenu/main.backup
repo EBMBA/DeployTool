@@ -30,7 +30,7 @@
                <iconPacks:PackIconFontAwesome Kind="GitlabBrands"/>
             </StackPanel>
          </Button>
-               </Controls:WindowCommands>
+      </Controls:WindowCommands>
    </Controls:MetroWindow.LeftWindowCommands>
    <Controls:MetroWindow.RightWindowCommands>
       <Controls:WindowCommands>
@@ -49,7 +49,47 @@
       </Controls:WindowCommands>
    </Controls:MetroWindow.RightWindowCommands>
    <Grid>
-      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+      <StackPanel>
+         <StackPanel HorizontalAlignment="Center" Margin="0,0,0,0" Orientation="Horizontal">
+            <StackPanel Orientation="Vertical">
+               <StackPanel Margin="0,0,0,0" Orientation="Horizontal">
+                  <Image Width="80" Height="80" Source="logo.png">
+                  </Image>
+                  <Label
+                     Margin="0,0,0,0"
+                     Content="Deployment Utility"
+                     FontSize="30"
+                     Foreground="#FF303030">
+                  </Label>
+                </StackPanel>
+            </StackPanel>
+         </StackPanel>
+       <StackPanel>
+            <Canvas Grid.Row="1">
+               <TabControl
+                  Name="Tabcontrol"
+                  Width="800"
+                  Height="700"
+                  HorizontalAlignment="Left"
+                  Margin="0 0 0 0 "
+                  VerticalAlignment="Top"
+                  Controls:TabControlHelper.Underlined="SelectedTabItem"
+                  TabStripPlacement="Left">
+                  <TabItem>
+                     <TabItem.HeaderTemplate>
+                        <DataTemplate>
+                           <StackPanel Orientation="Horizontal">
+                              <iconPacks:PackIconFontAwesome
+                                 Width="24"
+                                 Height="24"
+                                 Margin="0 12 0 0 "
+                                 Kind="QuestionCircleRegular"/>
+                              <Label Margin="2 0 0 0" Content="Info" Foreground="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
+                           </StackPanel>
+                        </DataTemplate>
+                     </TabItem.HeaderTemplate>
+                     
+                       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
          <Label
             Margin="80 0 0 40"
             Content="Ajouter un ordinateur à déployer"
@@ -174,17 +214,16 @@
                   Width="60"
                   Height="30"
                   Margin="5 15 0 0"
-                  Content="Générer"/>     
-                <Button
-                  Name="Search"
-                  Width="60"
-                  Height="30"
-                  Margin="5 15 0 0"
-                  Content="Search"/>
-             
-                 
+                  Content="Générer"/>       
             </StackPanel>
          </StackPanel>
       </StackPanel>
-   </Grid>
+                     
+                  
+             </TabItem>         
+         </TabControl>
+        </Canvas>  
+      </StackPanel>
+    </StackPanel>
+  </Grid>
 </Controls:MetroWindow>
