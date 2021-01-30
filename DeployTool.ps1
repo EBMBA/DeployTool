@@ -119,7 +119,7 @@ $ServeurSQL = "CR-SRV-MDT1"
 $OrgName = "CHL"
 $DomainRoot = (get-ADDomain).DNSRoot
 $JoinDomain = "$DomainRoot"
-$DomainAdmin ="MDT-BA"
+$DomainAdmin ="MDT-JD"
 $DomainAdminDomain = "$DomainRoot"
 $SkipFinalSummary= "No"
 
@@ -316,17 +316,49 @@ $Form.Add_ContentRendered({
 #                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
 ############################################################################## 
 $WPF_Create.Add_Click({
-  $DomainAdminPassword = $mdp
-  $MacAddress = $WPF_MacAddress.Text
-  $ComputerName = $WPF_ComputerName.Text
-  $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
-  $Service = $WPF_Service.SelectedItem.ToString()
-  $SearchBase=(Get-ADDomain).DistinguishedName
-  $MachineObjectOU ="OU=Ordinateurs Fixes,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
-  New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
-   TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
-   JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$DomainAdminPassword; MachineObjectOU=$MachineObjectOU;
-   SkipFinalSummary=$SkipFinalSummary;}
+  $Machine = $WPF_Machine.SelectedItem.ToString()
+  switch ($Machine) {
+    "Serveur" {
+      $DomainAdminPassword = $mdp
+      $MacAddress = $WPF_MacAddress.Text
+      $ComputerName = $WPF_ComputerName.Text
+      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
+      $Service = $WPF_Service.SelectedItem.ToString()
+      $SearchBase=(Get-ADDomain).DistinguishedName
+      $MachineObjectOU =$((Get-ADOrganizationalUnit -filter {Name -like $Machine} -SearchBase $SearchBase).DistinguishedName)  
+      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
+        TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
+        JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$DomainAdminPassword; MachineObjectOU=$MachineObjectOU;
+        SkipFinalSummary=$SkipFinalSummary;}
+      }
+    "Portable" {
+      $DomainAdminPassword = $mdp
+      $MacAddress = $WPF_MacAddress.Text
+      $ComputerName = $WPF_ComputerName.Text
+      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
+      $Service = $WPF_Service.SelectedItem.ToString()
+      $SearchBase=(Get-ADDomain).DistinguishedName
+      $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
+      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
+       TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
+       JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$DomainAdminPassword; MachineObjectOU=$MachineObjectOU;
+       SkipFinalSummary=$SkipFinalSummary;} 
+      }
+    "Fixe" { 
+      $DomainAdminPassword = $mdp
+      $MacAddress = $WPF_MacAddress.Text
+      $ComputerName = $WPF_ComputerName.Text
+      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
+      $Service = $WPF_Service.SelectedItem.ToString()
+      $SearchBase=(Get-ADDomain).DistinguishedName
+      $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
+      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
+       TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
+       JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$DomainAdminPassword; MachineObjectOU=$MachineObjectOU;
+       SkipFinalSummary=$SkipFinalSummary;}
+      }
+    Default {}
+  }
 })
 
 $WPF_Create.Add_Click({
