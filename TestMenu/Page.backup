@@ -13,21 +13,7 @@
          </ResourceDictionary.MergedDictionaries>
       </ResourceDictionary>
    </Page.Resources>
-  <Grid>
-      <StackPanel>
-         <StackPanel HorizontalAlignment="Center" Margin="0,0,0,0" Orientation="Horizontal">
-            <StackPanel Orientation="Vertical">
-               <StackPanel Margin="0,0,0,0" Orientation="Horizontal">
-
-                  <Label
-                     Margin="0,0,0,0"
-                     Content="Deployment Utility"
-                     FontSize="30"
-                     Foreground="#FF303030">
-                  </Label>
-                </StackPanel>
-            </StackPanel>
-         </StackPanel>
+   <Grid>
        <StackPanel>
             <Canvas Grid.Row="1">
                <TabControl
@@ -35,28 +21,28 @@
                   Width="800"
                   Height="700"
                   HorizontalAlignment="Left"
-                  Margin="0 0 0 0 "
+                  Margin="0 50 0 0 "
                   VerticalAlignment="Top"
                   Controls:TabControlHelper.Underlined="SelectedTabItem"
                   TabStripPlacement="Left">
+                              <!-->
                   <TabItem>
                      <TabItem.HeaderTemplate>
                         <DataTemplate>
                            <StackPanel Orientation="Horizontal">
-                           <iconPacks:PackIconBootstrapIcons Kind="Search" />
-                              <iconPacks:PackIconFontAwesome
+                              <iconPacks:PackIconOcticons
                                  Width="24"
                                  Height="24"
-                                 Margin="0 12 0 0 "
-                                 Kind="QuestionCircleRegular"/>
-                              <Label Margin="2 0 0 0" Content="Info" Foreground="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
+                                 Margin="5 12 0 0 "
+                                 Kind="Plus" />
+                              <Label Margin="5 0 0 0" Content="Deploy" Foreground="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
                            </StackPanel>
                         </DataTemplate>
                      </TabItem.HeaderTemplate>
                      
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Vertical">
          <Label
-            Margin="40 0 0 40"
+            Margin="40 0 0 50"
             Content="Ajouter un ordinateur à déployer"
             FontSize="25"
             FontWeight="Thin"/>
@@ -185,10 +171,68 @@
       </StackPanel>
                      
                   
-             </TabItem>         
+            </TabItem>
+
+            </!-->
+            
+            
+            <TabItem>
+                     <TabItem.HeaderTemplate>
+                        <DataTemplate>
+                           <StackPanel Orientation="Horizontal">
+                              <iconPacks:PackIconBootstrapIcons
+                                 Width="24"
+                                 Height="24"
+                                 Margin="5 12 0 0 "
+                                 Kind="Search" />
+                              <Label Margin="5 0 0 0" Content="Search" Foreground="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
+                           </StackPanel>
+                        </DataTemplate>
+                     </TabItem.HeaderTemplate>
+                       <StackPanel HorizontalAlignment="center" VerticalAlignment="Top" Orientation="Vertical">
+         <Label
+            Margin="40 0 0 50"
+            Content="Search a computer or a server"
+            FontSize="25"
+            FontWeight="Thin">
+            </Label>
+                                             <DataGrid
+                                    Name="Search"
+                                    Width="400"
+                                    Height="180"
+                                    Margin="2,2,2,2"
+                                    BorderThickness="1"
+                                    ColumnWidth="150"
+                                    ItemsSource="{Binding}"
+                                    SelectionMode="Single">
+                                    <DataGrid.Columns>
+                                       <DataGridTextColumn Binding="{Binding NameComputer}" Header="Name"/>
+                                       <DataGridTextColumn Binding="{Binding WhenCreated}" Header="When Created"/>
+                                       <DataGridTextColumn Binding="{Binding IPV4Address}" Header="IPV4 Address"/>
+                                    </DataGrid.Columns>
+                                 </DataGrid>
+                                 <TextBox
+                                       Name="FilterTextBox"
+                                       Width="400"
+                                       Height="26"
+                                       HorizontalAlignment="Left"
+                                       Margin="2 2 0 0"
+                                       VerticalAlignment="Top"
+                                       Controls:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(Controls:TextBoxHelper.HasText), Mode=OneWay}"
+                                       Controls:TextBoxHelper.Watermark="Filter the Title column"
+                                       Text=""
+                                       TextWrapping="Wrap"/>
+            
+            
+            
+                      </StackPanel>
+                     
+                     
+                     
+                     
+                    </TabItem>
          </TabControl>
         </Canvas>  
       </StackPanel>
-    </StackPanel>
   </Grid>
 </Page>
