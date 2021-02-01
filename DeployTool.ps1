@@ -62,66 +62,26 @@ Function New-MahappsMessage {
   
 }
 
-function Decode-SecureStringPassword
-{
-    [CmdletBinding()]
-    [Alias('dssp')]
-    [OutputType([string])]
-    Param
-    (
-        # Param1 help description
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,                   
-                   Position=0) ]     
-        $password 
-    )
-    Begin
-    {
-    }
-    Process
-    {        
-       return [System.Runtime.InteropServices.Marshal]::PtrToStringUni([System.Runtime.InteropServices.Marshal]::SecureStringToCoTaskMemUnicode($password))              
-    }
-    End
-    {
-    }
-}
 #########################################################################
-#                       MOT DE PASSE MDT-User	       		                #
-#########################################################################
-$PathPassword = "$path\password.pwd"
-[String]$mdp =""
-#$PresencePassword = Test-Path $PathPassword
-
-$Form.Add_ContentRendered({
-  $PresencePassword = Test-Path $PathPassword
-  if($false -eq $PresencePassword){
-    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants du MDT_User
-     dans la console powershell puis relancer l'application"
-    $password = Get-Credential
-    Export-Clixml -path $path\password.pwd -InputObject $password
-  }
-  else {
-    $import=Import-Clixml -Path $PathPassword
-    $mdp=Decode-SecureStringPassword $import.Password
-  } 
-})
- 
-
-#########################################################################
-#                       DATA       						       		                #
+#                       DATA       						       		    #
 #########################################################################
 
 #Données obligatoires à modifier 
 $ServeurMDT = "CR-SRV-MDT1"
 $DeploymentShareSMB = "DEPLOYMENTSHARE$"
 $ServeurSQL = "CR-SRV-MDT1"
-$OrgName = "CHL"
-$DomainRoot = (get-ADDomain).DNSRoot
-$JoinDomain = "$DomainRoot"
-$DomainAdmin ="MDT-JD"
-$DomainAdminDomain = "$DomainRoot"
-$SkipFinalSummary= "No"
+
+<#
+try {
+  Connect-MDTDatabase -sqlServer $ServeurSQL -database MDT
+
+  $WPF_ConnectValidation.Color = "Green"
+
+}
+catch {
+  
+}
+#>
 
 $WPF_Theme.Add_Click({
   $Theme1 = [ControlzEx.Theming.ThemeManager]::Current.DetectTheme($form)
@@ -184,7 +144,7 @@ $WPF_Machine.add_SelectionChanged({
 ############################################################################## 
 $Services = ('Informatique','Medecins','Infirmieres','Aides-Soignantes','Direction','Laboratoire','Recherche et Developpement','Radiologie','Pharmacie','Administration','Accueil','Ressources Humaines')
 $Sites = ('Croix-Rousse')
-$Machines = ('Fixe', 'Portable', 'Serveur')
+$Machines = ('Client', 'Serveur')
 # Ajout des services, des sites et des types de machines dans les combobox 
 foreach ($item in $Services) {
   $WPF_Service.Items.Add($item) 
@@ -210,11 +170,9 @@ $WPF_Search.Add_Click({
 
 
 })
-
 $WPF_Service.SelectedIndex = 0
 $WPF_Site.SelectedIndex = 0
 $WPF_Machine.SelectedIndex = 0
-
 # Remplissage automatique du champ ComputerName
 
 $WPF_Generer.Add_Click({
@@ -242,7 +200,7 @@ $WPF_Generer.Add_Click({
 #>
 
 ##############################################################################
-#                           ACTIVATION DE LA VALIDATION                       #
+#                           ACTIVATION DE LA VALIDATION                                          #
 ############################################################################## 
 
 $WPF_ComputerName.Add_TextChanged -and $WPF_MacAddress.Add_TextChanged({
@@ -255,111 +213,27 @@ $WPF_ComputerName.Add_TextChanged -and $WPF_MacAddress.Add_TextChanged({
 })
 
 ##############################################################################
-#                           CONNECTION A LA  BDD                             #
-############################################################################## 
-$Form.Add_ContentRendered({
-  try {
-    Connect-MDTDatabase -sqlServer $ServeurSQL -instance SQLEXPRESS -database MDT
-    
-    $title = "DeployTools"
-    $Message = "Vous ête connecté au serveur de base de donnée $ServeurSQL"
-    $Type = "Info"
-
-    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
-    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
-    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
-    $notify = new-object system.windows.forms.notifyicon
-    $notify.icon = $icon
-    $notify.visible = $true
-    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
-  }
-  catch {
-    #New-MahappsMessage -title "Erreur" -Message "Le serveur $ServeurSQL n'est pas accessible"
-
-    $title = "DeployTools"
-    $Message = "Le serveur de base de donnée $ServeurSQL n'est pas accessible"
-    $Type = "Error"
-
-    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
-    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
-    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
-    $notify = new-object system.windows.forms.notifyicon
-    $notify.icon = $icon
-    $notify.visible = $true
-    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
-  }
-  
-})
-##############################################################################
 #                  RECHERCHE / AFFICHAGE SEQUENCES DE TACHES                 #
 ############################################################################## 
-[XML]$TaskSequencesFile = Get-Content -path \\$ServeurMDT\$DeploymentShareSMB\Control\TaskSequences.xml
+<#[XML]$TaskSequencesFile = Get-Content -path \$ServeurMDT\$DeploymentShareSMB\Control\TaskSequences.xml
 $TaskSequencesList = $TaskSequencesFile.tss.ts
 
 foreach ($TaskSequence in $TaskSequencesList) {
-  if($TaskSequence.enable -eq "True"){
-    $GroupsList = New-Object PSObject
-    $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
-    $GroupsList = $GroupsList | Add-Member NoteProperty Nom $TaskSequence.Name -passthru	
-    $WPF_TaskSequences.Items.Add($GroupsList) > $null
-  }
+  $GroupsList = New-Object PSObject
+  $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.Name -passthru
+  $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Description -passthru	
+  $WPF_TaskSequences.Items.Add($GroupsList) > $null
 }
-
-# Erreur aucune TS active
-$Form.Add_ContentRendered({
-  if($null -eq $TaskSequencesList){
-    New-MahappsMessage -title "Error" -Message "Aucune séquence de tâches d'active"
-  }
-})
+#>
 
 ##############################################################################
 #                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
 ############################################################################## 
-$WPF_Create.Add_Click({
-  $Machine = $WPF_Machine.SelectedItem.ToString()
-  switch ($Machine) {
-    "Serveur" {
-      $DomainAdminPassword = $mdp
-      $MacAddress = $WPF_MacAddress.Text
-      $ComputerName = $WPF_ComputerName.Text
-      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
-      $Service = $WPF_Service.SelectedItem.ToString()
-      $SearchBase=(Get-ADDomain).DistinguishedName
-      $MachineObjectOU =$((Get-ADOrganizationalUnit -filter {Name -like $Machine} -SearchBase $SearchBase).DistinguishedName)  
-      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
-        TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
-        JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$DomainAdminPassword; MachineObjectOU=$MachineObjectOU;
-        SkipFinalSummary=$SkipFinalSummary;}
-      }
-    "Portable" {
-      $DomainAdminPassword = $mdp
-      $MacAddress = $WPF_MacAddress.Text
-      $ComputerName = $WPF_ComputerName.Text
-      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
-      $Service = $WPF_Service.SelectedItem.ToString()
-      $SearchBase=(Get-ADDomain).DistinguishedName
-      $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
-      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
-       TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
-       JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$DomainAdminPassword; MachineObjectOU=$MachineObjectOU;
-       SkipFinalSummary=$SkipFinalSummary;} 
-      }
-    "Fixe" { 
-      $DomainAdminPassword = $mdp
-      $MacAddress = $WPF_MacAddress.Text
-      $ComputerName = $WPF_ComputerName.Text
-      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
-      $Service = $WPF_Service.SelectedItem.ToString()
-      $SearchBase=(Get-ADDomain).DistinguishedName
-      $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
-      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
-       TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
-       JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$DomainAdminPassword; MachineObjectOU=$MachineObjectOU;
-       SkipFinalSummary=$SkipFinalSummary;}
-      }
-    Default {}
-  }
+<#$WPF_Create.Add_Click({
+  New-MDTComputer -macaddress -description @settings ()
 })
+#>
+
 
 $WPF_Create.Add_Click({
 
