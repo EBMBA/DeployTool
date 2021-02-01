@@ -63,32 +63,6 @@ Function New-MahappsMessage {
   
 }
 
-<<<<<<< Updated upstream
-=======
-function Decode-SecureStringPassword
-{
-    [CmdletBinding()]
-    [Alias('dssp')]
-    [OutputType([string])]
-    Param
-    (
-        # Param1 help description
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,                   
-                   Position=0) ]     
-        $password 
-    )
-    Begin
-    {
-    }
-    Process
-    {        
-       return [System.Runtime.InteropServices.Marshal]::PtrToStringUni([System.Runtime.InteropServices.Marshal]::SecureStringToCoTaskMemUnicode($password))              
-    }
-    End
-    {
-    }
-}
 #########################################################################
 #                       Page Identification        		                #
 #########################################################################
@@ -98,8 +72,7 @@ $PathPassword = "$path\password.pwd"
 $Form.Add_ContentRendered({
   $PresencePassword = Test-Path $PathPassword
   if($false -eq $PresencePassword){
-    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants du MDT_User
-     dans la console powershell puis relancer l'application"
+    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants du MDT_User dans la console powershell puis relancer l'application"
     $password = Get-Credential
     Export-Clixml -path $path\password.pwd -InputObject $password
   }
@@ -108,9 +81,8 @@ $Form.Add_ContentRendered({
     $Script:Password=Decode-SecureStringPassword $import.Password
   } 
 })
- 
 
->>>>>>> Stashed changes
+
 #########################################################################
 #                       DATA       						       		    #
 #########################################################################
@@ -119,18 +91,13 @@ $Form.Add_ContentRendered({
 $ServeurMDT = "CR-SRV-MDT1"
 $DeploymentShareSMB = "DEPLOYMENTSHARE$"
 $ServeurSQL = "CR-SRV-MDT1"
+$OrgName = "CHL"
+$DomainRoot = (get-ADDomain).DNSRoot
+$JoinDomain = "$DomainRoot"
+$DomainAdmin ="MDT-BA"
+$DomainAdminDomain = "$DomainRoot"
+$SkipFinalSummary= "No"
 
-<#
-try {
-  Connect-MDTDatabase -sqlServer $ServeurSQL -database MDT
-
-  $WPF_ConnectValidation.Color = "Green"
-
-}
-catch {
-  
-}
-#>
 
 $WPF_Theme.Add_Click({
   $Theme1 = [ControlzEx.Theming.ThemeManager]::Current.DetectTheme($form)
@@ -166,6 +133,44 @@ $WPF_Gitlab.Add_Click({
   start https://gitlab.com/Vikzer
   start https://gitlab.com/EBMBA
 })
+
+##############################################################################
+#                           CONNECTION A LA  BDD                             #
+############################################################################## 
+$Form.Add_ContentRendered({
+  try {
+    Connect-MDTDatabase -sqlServer $ServeurSQL -instance SQLEXPRESS -database MDT
+    
+    $title = "DeployTools"
+    $Message = "Vous ête connecté au serveur de base de donnée $ServeurSQL"
+    $Type = "Info"
+
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+    $notify = new-object system.windows.forms.notifyicon
+    $notify.icon = $icon
+    $notify.visible = $true
+    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
+  }
+  catch {
+    #New-MahappsMessage -title "Erreur" -Message "Le serveur $ServeurSQL n'est pas accessible"
+
+    $title = "DeployTools"
+    $Message = "Le serveur de base de donnée $ServeurSQL n'est pas accessible"
+    $Type = "Error"
+
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+    $notify = new-object system.windows.forms.notifyicon
+    $notify.icon = $icon
+    $notify.visible = $true
+    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
+  }
+  
+})
+
 ##############################################################################
 #                           AFFICHAGE CHOIX DE SERVICE                       #
 ############################################################################## 
@@ -180,6 +185,7 @@ $WPF_Machine.add_SelectionChanged({
     $WPF_Generer.IsEnabled= $true
   }
   else{
+    $WPF_ComputerName.Text =''
     $WPF_ServiceView.Visibility = "Collapsed"
     $WPF_Generer.IsEnabled= $false
     $WPF_ComputerName.IsEnabled = $true
@@ -193,7 +199,7 @@ $WPF_Machine.add_SelectionChanged({
 ############################################################################## 
 $Services = ('Informatique','Medecins','Infirmieres','Aides-Soignantes','Direction','Laboratoire','Recherche et Developpement','Radiologie','Pharmacie','Administration','Accueil','Ressources Humaines')
 $Sites = ('Croix-Rousse')
-$Machines = ('Client', 'Serveur')
+$Machines = ('Fixe', 'Portable', 'Serveur')
 # Ajout des services, des sites et des types de machines dans les combobox 
 foreach ($item in $Services) {
   $WPF_Service.Items.Add($item) 
@@ -228,7 +234,6 @@ $WPF_Generer.Add_Click({
   $Service = $WPF_Service.SelectedItem.ToString()
   $Site = $WPF_Site.SelectedItem.ToString()
   $Machine = $WPF_Machine.SelectedItem.ToString()
-
   $WPF_ComputerName.Text= AutoNameComputer -Site $Site -Service $Service -Machine $Machine
 })
 
@@ -255,7 +260,6 @@ $WPF_MacAddress.Add_TextChanged({
 	If (($WPF_MacAddress.text -match "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" ) -and ($WPF_ComputerName.text.Length -ge 7)){
     $WPF_MacAddress.Background = [System.Windows.Media.Brushes]::PaleGreen
     $WPF_Create.IsEnabled = $True
-
   }
   else{
     $WPF_MacAddress.Background = [System.Windows.Media.Brushes]::PaleVioletRed
@@ -278,7 +282,7 @@ $WPF_ComputerName.Add_TextChanged -and ({
 ##############################################################################
 #                  RECHERCHE / AFFICHAGE SEQUENCES DE TACHES                 #
 ############################################################################## 
-<#[XML]$TaskSequencesFile = Get-Content -path \$ServeurMDT\$DeploymentShareSMB\Control\TaskSequences.xml
+XML]$TaskSequencesFile = Get-Content -path \$ServeurMDT\$DeploymentShareSMB\Control\TaskSequences.xml
 $TaskSequencesList = $TaskSequencesFile.tss.ts
 
 foreach ($TaskSequence in $TaskSequencesList) {
@@ -287,15 +291,17 @@ foreach ($TaskSequence in $TaskSequencesList) {
   $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Description -passthru	
   $WPF_TaskSequences.Items.Add($GroupsList) > $null
 }
-#>
+
+# Erreur aucune TS active
+$Form.Add_ContentRendered({
+  if($null -eq $TaskSequencesList){
+    New-MahappsMessage -title "Erreur" -Message "Aucune TaskSequences d'active"
+  }
+})
 
 ##############################################################################
 #                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
 ############################################################################## 
-<<<<<<< Updated upstream
-<#$WPF_Create.Add_Click({
-  New-MDTComputer -macaddress -description @settings ()
-=======
 $WPF_Create.Add_Click({
   $Machine = $WPF_Machine.SelectedItem.ToString()
   switch ($Machine) {
@@ -337,9 +343,8 @@ $WPF_Create.Add_Click({
       }
     Default {}
   }
->>>>>>> Stashed changes
 })
-#>
+
 
 
 
@@ -442,5 +447,9 @@ $WPF_Path.SelectedIndex=1
  
 # Force garbage collection just to start slightly lower RAM usage.
 #[System.GC]::Collect()
+
+$WPF_Exit.Add_Click({
+  $Form.Close()
+})
 
 $Form.ShowDialog() | Out-Null
