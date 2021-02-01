@@ -8,6 +8,7 @@ foreach ($item in $(gci .\assembly\ -Filter *.dll).name) {
 $path = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 
 Import-Module -Name "$Path\services\functions.psm1"
+Import-Module -Name "$Path\services\ConnectServerBDD.psm1"
 
 Import-Module -Name MDTDB
 
@@ -62,6 +63,54 @@ Function New-MahappsMessage {
   
 }
 
+<<<<<<< Updated upstream
+=======
+function Decode-SecureStringPassword
+{
+    [CmdletBinding()]
+    [Alias('dssp')]
+    [OutputType([string])]
+    Param
+    (
+        # Param1 help description
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,                   
+                   Position=0) ]     
+        $password 
+    )
+    Begin
+    {
+    }
+    Process
+    {        
+       return [System.Runtime.InteropServices.Marshal]::PtrToStringUni([System.Runtime.InteropServices.Marshal]::SecureStringToCoTaskMemUnicode($password))              
+    }
+    End
+    {
+    }
+}
+#########################################################################
+#                       Page Identification        		                #
+#########################################################################
+$PathPassword = "$path\password.pwd"
+#$PresencePassword = Test-Path $PathPassword
+
+$Form.Add_ContentRendered({
+  $PresencePassword = Test-Path $PathPassword
+  if($false -eq $PresencePassword){
+    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants du MDT_User
+     dans la console powershell puis relancer l'application"
+    $password = Get-Credential
+    Export-Clixml -path $path\password.pwd -InputObject $password
+  }
+  else {
+    $import=Import-Clixml -Path $PathPassword
+    $Script:Password=Decode-SecureStringPassword $import.Password
+  } 
+})
+ 
+
+>>>>>>> Stashed changes
 #########################################################################
 #                       DATA       						       		    #
 #########################################################################
@@ -124,7 +173,7 @@ $WPF_Gitlab.Add_Click({
 $WPF_Machine.add_SelectionChanged({
   
   $MachineSelect = $WPF_Machine.SelectedItem.ToString()
-  if($MachineSelect -eq "Client"){
+  if( $MachineSelect -eq "Fixe" -or $MachineSelect -eq "Portable" ){
     $WPF_ServiceView.Visibility = "Visible"
     $WPF_ComputerName.IsEnabled = $false
     $WPF_ComputerName.Text = 'Générez son nom'
@@ -202,12 +251,26 @@ $WPF_Generer.Add_Click({
 ##############################################################################
 #                           ACTIVATION DE LA VALIDATION                                          #
 ############################################################################## 
-
-$WPF_ComputerName.Add_TextChanged -and $WPF_MacAddress.Add_TextChanged({
-	If (($WPF_ComputerName.text.Length -ge 7) -and ($WPF_MacAddress.text.Length -eq 17)){
+$WPF_MacAddress.Add_TextChanged({
+	If (($WPF_MacAddress.text -match "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" ) -and ($WPF_ComputerName.text.Length -ge 7)){
+    $WPF_MacAddress.Background = [System.Windows.Media.Brushes]::PaleGreen
     $WPF_Create.IsEnabled = $True
+
   }
   else{
+    $WPF_MacAddress.Background = [System.Windows.Media.Brushes]::PaleVioletRed
+    $WPF_Create.IsEnabled = $false
+  }
+})
+
+$WPF_ComputerName.Add_TextChanged -and ({
+	If (($WPF_ComputerName.text.Length -ge 7) -and ($WPF_MacAddress.text -match "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" )){
+    $WPF_MacAddress.Background = [System.Windows.Media.Brushes]::PaleGreen
+    $WPF_Create.IsEnabled = $True
+
+  }
+  else{
+    $WPF_MacAddress.Background = [System.Windows.Media.Brushes]::PaleVioletRed
     $WPF_Create.IsEnabled = $false
   }
 })
@@ -229,12 +292,58 @@ foreach ($TaskSequence in $TaskSequencesList) {
 ##############################################################################
 #                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
 ############################################################################## 
+<<<<<<< Updated upstream
 <#$WPF_Create.Add_Click({
   New-MDTComputer -macaddress -description @settings ()
+=======
+$WPF_Create.Add_Click({
+  $Machine = $WPF_Machine.SelectedItem.ToString()
+  switch ($Machine) {
+    "Serveur" {
+      $MacAddress = $WPF_MacAddress.Text
+      $ComputerName = $WPF_ComputerName.Text
+      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
+      $Service = $WPF_Service.SelectedItem.ToString()
+      $SearchBase=(Get-ADDomain).DistinguishedName
+      $MachineObjectOU =$((Get-ADOrganizationalUnit -filter {Name -like $Machine} -SearchBase $SearchBase).DistinguishedName)  
+      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
+        TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
+        JoinDomain="$JoinDomain"; DomainAdmin="$DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
+        SkipFinalSummary="$SkipFinalSummary";}
+      }
+    "Portable" {
+      $MacAddress = $WPF_MacAddress.Text
+      $ComputerName = $WPF_ComputerName.Text
+      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
+      $Service = $WPF_Service.SelectedItem.ToString()
+      $SearchBase=(Get-ADDomain).DistinguishedName
+      $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
+      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
+       TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
+       JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$Script:Password; MachineObjectOU=$MachineObjectOU;
+       SkipFinalSummary=$SkipFinalSummary;} 
+      }
+    "Fixe" { 
+      $MacAddress = $WPF_MacAddress.Text
+      $ComputerName = $WPF_ComputerName.Text
+      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
+      $Service = $WPF_Service.SelectedItem.ToString()
+      $SearchBase=(Get-ADDomain).DistinguishedName
+      $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
+      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
+       TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
+       JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$Script:Password; MachineObjectOU=$MachineObjectOU;
+       SkipFinalSummary=$SkipFinalSummary;}
+      }
+    Default {}
+  }
+>>>>>>> Stashed changes
 })
 #>
 
 
+
+<#
 $WPF_Create.Add_Click({
 
   # On teste si le checkBox et décoché 
@@ -325,7 +434,7 @@ foreach ($item in $GroupGlobaux) {
 }
 
 $WPF_Path.SelectedIndex=1
-
+#>
 #Make PowerShell Disappear
 #$windowcode = '[DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);'
 #$asyncwindow = Add-Type -MemberDefinition $windowcode -name Win32ShowWindowAsync -namespace Win32Functions -PassThru
