@@ -72,7 +72,7 @@ $PathPassword = "$path\password.pwd"
 $Form.Add_ContentRendered({
   $PresencePassword = Test-Path $PathPassword
   if($false -eq $PresencePassword){
-    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants du MDT_User dans la console powershell puis relancer l'application"
+    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants de jonction de domaine dans l'onglet IDENTIFICATION"
     $password = Get-Credential
     Export-Clixml -path $path\password.pwd -InputObject $password
   }
@@ -83,8 +83,38 @@ $Form.Add_ContentRendered({
 })
 
 
+$WPF_ExitI.Add_Click({
+  $Form.Close()
+})
+
+$WPF_Password.Add_TextChanged({
+  if(($WPF_MDTJD.Text -ne $null) -and ($WPF_Password.Text -ne $null)){
+    $WPF_Connexion.IsEnabled = "True"
+  }
+  else {
+    $WPF_Connexion.IsEnabled = "False"
+  }
+})
+
+$WPF_MDTJD.Add_TextChanged({
+  if(($WPF_MDTJD.Text -ne $null) -and ($WPF_Password.Text -ne $null)){
+    $WPF_Connexion.IsEnabled = "True"
+  }
+  else {
+    $WPF_Connexion.IsEnabled = "False"
+  }
+})
+
+
+$WPF_Connexion.Add_Click({
+  $DomainAdmin = $WPF_MDTJD.Text
+  $password = ConvertTo-SecureString $WPF_Password.Password -AsPlainText -Force  
+  $login = New-Object System.Management.Automation.PSCredential -ArgumentList $DomainAdmin,$password
+  Export-Clixml -path $path\password.pwd -InputObject $login
+})
+
 #########################################################################
-#                       DATA       						       		    #
+#                       DATA       						       		                #
 #########################################################################
 
 #Données obligatoires à modifier 
@@ -94,7 +124,6 @@ $ServeurSQL = "CR-SRV-MDT1"
 $OrgName = "CHL"
 $DomainRoot = (get-ADDomain).DNSRoot
 $JoinDomain = "$DomainRoot"
-$DomainAdmin ="MDT-BA"
 $DomainAdminDomain = "$DomainRoot"
 $SkipFinalSummary= "No"
 
@@ -228,8 +257,8 @@ $WPF_Search.Add_Click({
 $WPF_Service.SelectedIndex = 0
 $WPF_Site.SelectedIndex = 0
 $WPF_Machine.SelectedIndex = 0
-# Remplissage automatique du champ ComputerName
 
+# Remplissage automatique du champ ComputerName
 $WPF_Generer.Add_Click({
   $Service = $WPF_Service.SelectedItem.ToString()
   $Site = $WPF_Site.SelectedItem.ToString()
