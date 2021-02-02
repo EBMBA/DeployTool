@@ -63,18 +63,43 @@ Function New-MahappsMessage {
   
 }
 
+
+function Decode-SecureStringPassword
+{
+    [CmdletBinding()]
+    [Alias('dssp')]
+    [OutputType([string])]
+    Param
+    (
+        # Param1 help description
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,                   
+                   Position=0) ]     
+        $password 
+    )
+    Begin
+    {
+    }
+    Process
+    {        
+       return [System.Runtime.InteropServices.Marshal]::PtrToStringUni([System.Runtime.InteropServices.Marshal]::SecureStringToCoTaskMemUnicode($password))              
+    }
+    End
+    {}
+  }
 #########################################################################
 #                       Page Identification        		                #
 #########################################################################
-$PathPassword = "$path\password.pwd"
+$PathLogin = "$path\password.pwd"
 #$PresencePassword = Test-Path $PathPassword
 
 $Form.Add_ContentRendered({
   $PresencePassword = Test-Path $PathPassword
   if($false -eq $PresencePassword){
-    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants de jonction de domaine dans l'onglet IDENTIFICATION"
-    $password = Get-Credential
-    Export-Clixml -path $path\password.pwd -InputObject $password
+    $WPF_Onglet_Identification.IsSelected="True"
+    New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants de jonction de domaine"
+    #$password = Get-Credential
+    #Export-Clixml -path $path\password.pwd -InputObject $password
   }
   else {
     $import=Import-Clixml -Path $PathPassword
@@ -107,12 +132,83 @@ $WPF_MDTJD.Add_TextChanged({
 
 
 $WPF_Connexion.Add_Click({
-  $DomainAdmin = $WPF_MDTJD.Text
+  $DomainAdminEnter = $WPF_MDTJD.Text
   $password = ConvertTo-SecureString $WPF_Password.Password -AsPlainText -Force  
-  $login = New-Object System.Management.Automation.PSCredential -ArgumentList $DomainAdmin,$password
+  $login = New-Object System.Management.Automation.PSCredential -ArgumentList $DomainAdminEnter,$password
   Export-Clixml -path $path\password.pwd -InputObject $login
+  $import=Import-Clixml -Path $PathLogin
+  $Script:Password=Decode-SecureStringPassword $import.Password
+  $Script:DomainAdmin = $import.UserName
 })
 
+#########################################################################
+#                       Page Paramètres          		                    #
+#########################################################################
+$Form.Add_ContentRendered({
+  switch ($WPF_ServiceView.Visibility ) {
+    'Visible' { $Script:SMSTSORGNAMEs="Déploiement du service $($WPF_Service.SelectedItem.ToString()) de $OrgName" }
+    'Collapsed' { $Script:SMSTSORGNAMEs="Déploiement d'un serveur de $OrgName" }
+    Default {}
+  }
+  $FinishActions=("LOGOFF","SHUTDOWN","REBOOT","blank")
+  $TimeZoneNames=("Romance Standard Time", "GMT Standard Time","W. Europe Standard Time")
+  $SkipFinalSummarys=("NO","YES")
+
+  foreach ($FinishAction in $FinishActions) {
+    $WPF_FinishAction.Items.Add($FinishAction)
+  }
+
+  foreach ($TimeZoneName in $TimeZoneNames) {
+    $WPF_TimeZoneName.Items.Add($TimeZoneName)
+  }
+
+  foreach ($SkipFinalSummary in $SkipFinalSummarys) {
+    $WPF_SkipFinalSummary.Items.Add($SkipFinalSummary)
+  }
+
+  $WPF_SMSTSORGNAME.Text=$Script:SMSTSORGNAMEs
+  $WPF_FinishAction.SelectedIndex=0
+  $WPF_SkipFinalSummary.SelectedIndex=0
+  $WPF_TimeZoneName.SelectedIndex=0
+  $WPF_Enregister.IsEnabled="True"
+})
+$WPF_ExitP.Add_Click({
+  $Form.Close()
+})
+
+$WPF_Service.add_SelectionChanged({
+  switch ($WPF_ServiceView.Visibility ) {
+    'Visible' { $Script:SMSTSORGNAMEs="Déploiement du service $($WPF_Service.SelectedItem.ToString()) de $OrgName" }
+    'Collapsed' { $Script:SMSTSORGNAMEs="Déploiement d'un serveur de $OrgName" }
+    Default {}
+  }
+  $WPF_SMSTSORGNAME.Text=$Script:SMSTSORGNAMEs
+})
+$WPF_Machine.add_SelectionChanged({
+  switch ($WPF_ServiceView.Visibility ) {
+    'Visible' { $Script:SMSTSORGNAMEs="Déploiement du service $($WPF_Service.SelectedItem.ToString()) de $OrgName" }
+    'Collapsed' { $Script:SMSTSORGNAMEs="Déploiement d'un serveur de $OrgName" }
+    Default {$Script:SMSTSORGNAMEs="Déploiement d'un serveur de $OrgName" }
+  }
+  $WPF_SMSTSORGNAME.Text=$Script:SMSTSORGNAMEs
+})
+
+$WPF_Enregister.Add_Click({
+  $WPF_Onglet_Deploiement.IsSelected="True"
+})
+
+$WPF_Defaut.Add_Click({
+  switch ($WPF_ServiceView.Visibility ) {
+    'Visible' { $Script:SMSTSORGNAMEs="Déploiement du service $($WPF_Service.SelectedItem.ToString()) de $OrgName" }
+    'Collapsed' { $Script:SMSTSORGNAMEs="Déploiement d'un serveur de $OrgName" }
+    Default {}
+  }
+
+  $WPF_SMSTSORGNAME.Text=$Script:SMSTSORGNAMEs
+  $WPF_FinishAction.SelectedIndex=0
+  $WPF_SkipFinalSummary.SelectedIndex=0
+  $WPF_TimeZoneName.SelectedIndex=0
+})
 #########################################################################
 #                       DATA       						       		                #
 #########################################################################
@@ -125,7 +221,6 @@ $OrgName = "CHL"
 $DomainRoot = (get-ADDomain).DNSRoot
 $JoinDomain = "$DomainRoot"
 $DomainAdminDomain = "$DomainRoot"
-$SkipFinalSummary= "No"
 
 
 $WPF_Theme.Add_Click({
@@ -166,6 +261,8 @@ $WPF_Gitlab.Add_Click({
 ##############################################################################
 #                           CONNECTION A LA  BDD                             #
 ############################################################################## 
+<#
+
 $Form.Add_ContentRendered({
   try {
     Connect-MDTDatabase -sqlServer $ServeurSQL -instance SQLEXPRESS -database MDT
@@ -199,7 +296,7 @@ $Form.Add_ContentRendered({
   }
   
 })
-
+#>
 ##############################################################################
 #                           AFFICHAGE CHOIX DE SERVICE                       #
 ############################################################################## 
@@ -296,7 +393,7 @@ $WPF_MacAddress.Add_TextChanged({
   }
 })
 
-$WPF_ComputerName.Add_TextChanged -and ({
+$WPF_ComputerName.Add_TextChanged({
 	If (($WPF_ComputerName.text.Length -ge 7) -and ($WPF_MacAddress.text -match "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" )){
     $WPF_MacAddress.Background = [System.Windows.Media.Brushes]::PaleGreen
     $WPF_Create.IsEnabled = $True
@@ -338,13 +435,12 @@ $WPF_Create.Add_Click({
       $MacAddress = $WPF_MacAddress.Text
       $ComputerName = $WPF_ComputerName.Text
       $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
-      $Service = $WPF_Service.SelectedItem.ToString()
       $SearchBase=(Get-ADDomain).DistinguishedName
       $MachineObjectOU =$((Get-ADOrganizationalUnit -filter {Name -like $Machine} -SearchBase $SearchBase).DistinguishedName)  
       New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
-        TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
-        JoinDomain="$JoinDomain"; DomainAdmin="$DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
-        SkipFinalSummary="$SkipFinalSummary";}
+        TaskSequenceID="$TaskSequenceSelect"; FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
+        JoinDomain="$JoinDomain"; DomainAdmin="$Script:DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
+        SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";}
       }
     "Portable" {
       $MacAddress = $WPF_MacAddress.Text
@@ -354,9 +450,9 @@ $WPF_Create.Add_Click({
       $SearchBase=(Get-ADDomain).DistinguishedName
       $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
       New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
-       TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
-       JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$Script:Password; MachineObjectOU=$MachineObjectOU;
-       SkipFinalSummary=$SkipFinalSummary;} 
+      TaskSequenceID="$TaskSequenceSelect"; FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
+      JoinDomain="$JoinDomain"; DomainAdmin="$Script:DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
+      SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";}
       }
     "Fixe" { 
       $MacAddress = $WPF_MacAddress.Text
@@ -366,9 +462,9 @@ $WPF_Create.Add_Click({
       $SearchBase=(Get-ADDomain).DistinguishedName
       $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
       New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
-       TaskSequenceID="$TaskSequenceSelect"; FinishAction="LOGOFF"; TimeZoneName="Romance Standard Time"; _SMSTSORGNAME="Déploiement du service $Service de $OrgName"; 
-       JoinDomain=$JoinDomain; DomainAdmin=$DomainAdmin; DomainAdminDomain=$DomainAdminDomain; DomainAdminPassword=$Script:Password; MachineObjectOU=$MachineObjectOU;
-       SkipFinalSummary=$SkipFinalSummary;}
+      TaskSequenceID="$TaskSequenceSelect"; FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
+      JoinDomain="$JoinDomain"; DomainAdmin="$Script:DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
+      SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";}
       }
     Default {}
   }
@@ -477,7 +573,7 @@ $WPF_Path.SelectedIndex=1
 # Force garbage collection just to start slightly lower RAM usage.
 #[System.GC]::Collect()
 
-$WPF_Exit.Add_Click({
+$WPF_ExitD.Add_Click({
   $Form.Close()
 })
 

@@ -61,7 +61,7 @@
                VerticalAlignment="Top"
                Controls:TabControlHelper.Underlined="SelectedTabItem"
                TabStripPlacement="Left">            
-               <TabItem>
+               <TabItem Name="Onglet_Deploiement">
                   <TabItem.HeaderTemplate>
                      <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -254,7 +254,7 @@
                   </StackPanel>
                </TabItem>
                      
-               <TabItem>
+               <TabItem Name="Onglet_Identification">
                   <TabItem.HeaderTemplate>
                      <DataTemplate>
                         <StackPanel Orientation="Horizontal">
