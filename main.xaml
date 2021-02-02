@@ -49,7 +49,7 @@
       </Controls:WindowCommands>
    </Controls:MetroWindow.RightWindowCommands>
 
-   <Grid>
+  <Grid>
       <StackPanel>
          <Canvas Grid.Row="1">
             <TabControl
@@ -186,14 +186,14 @@
                               Width="60"
                               Height="30"
                               Margin="5 0 0 0"
-                              Content="Create"
+                              Content="Créer"
                               IsEnabled="False"/>
                            <Button
-                              Name="Exit"
+                              Name="ExitD"
                               Width="60"
                               Height="30"
                               Margin="5 15 0 0"
-                              Content="Exit"/>
+                              Content="Quitter"/>
                            <Button
                               Name="Generer"
                               Width="60"
@@ -220,15 +220,15 @@
                   </TabItem.HeaderTemplate>
                   <StackPanel HorizontalAlignment="center" VerticalAlignment="Top" Orientation="Vertical">
                      <Label
-                        Margin="40 0 0 50"
-                        Content="Search a computer or a server"
+                        Margin="50 0 0 50"
+                        Content="Recherche de materiel dans le domaine"
                         FontSize="25"
                         FontWeight="Thin">
                      </Label>
                      <DataGrid
                         Name="Search"
-                        Width="400"
-                        Height="180"
+                        Width="500"
+                        Height="450"
                         Margin="2,2,2,2"
                         BorderThickness="1"
                         ColumnWidth="150"
@@ -242,10 +242,10 @@
                      </DataGrid>
                      <TextBox
                         Name="FilterTextBox"
-                        Width="400"
+                        Width="500"
                         Height="26"
                         HorizontalAlignment="Left"
-                        Margin="2 2 0 0"
+                        Margin="2 10 0 0"
                         VerticalAlignment="Top"
                         Controls:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(Controls:TextBoxHelper.HasText), Mode=OneWay}"
                         Controls:TextBoxHelper.Watermark="Filter the Title column"
@@ -284,7 +284,7 @@
                               <Label Content="Utilisateur :" FontWeight="Bold" Margin="-2 20 5 0"/>
                               <TextBox
                                  Margin="50 20 5 0"
-                                 Name="Utilisateur"
+                                 Name="MDTJD"
                                  Width="130"
                                  >
                               </TextBox>
@@ -313,7 +313,7 @@
                               Content="Connexion"
                               IsEnabled="False"/>
                            <Button
-                              Name="Quitter"
+                              Name="ExitI"
                               Width="90"
                               Height="30"
                               Margin="5 15 0 0"
@@ -379,7 +379,7 @@
                               </TextBox>
                            </StackPanel>
                         </StackPanel>
-                        <StackPanel Name="S_Button_Identification2" Margin="10 20 0 0" Orientation="Vertical">
+                        <StackPanel Name="S_Button_Parametres" Margin="10 20 0 0" Orientation="Vertical">
                            <Button
                               Name="Enregister"
                               Width="90"
@@ -394,7 +394,7 @@
                               Margin="5 15 0 0"
                               Content="Défaut"/>
                            <Button
-                              Name="Quitter2"
+                              Name="ExitP"
                               Width="90"
                               Height="30"
                               Margin="5 15 0 0"
@@ -407,5 +407,5 @@
          </Canvas>  
       </StackPanel>
    </Grid>
-   
+
 </Controls:MetroWindow>
