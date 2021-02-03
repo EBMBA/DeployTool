@@ -94,7 +94,7 @@ $PathLogin = "$path\password.pwd"
 #$PresencePassword = Test-Path $PathPassword
 
 $Form.Add_ContentRendered({
-  $PresencePassword = Test-Path $PathPassword
+  $PresencePassword = Test-Path $PathLogin
   if($false -eq $PresencePassword){
     $WPF_Onglet_Identification.IsSelected="True"
     New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants de jonction de domaine"
@@ -102,8 +102,9 @@ $Form.Add_ContentRendered({
     #Export-Clixml -path $path\password.pwd -InputObject $password
   }
   else {
-    $import=Import-Clixml -Path $PathPassword
+    $import=Import-Clixml -Path $PathLogin
     $Script:Password=Decode-SecureStringPassword $import.Password
+    $Script:DomainAdmin = $import.UserName
   } 
 })
 
