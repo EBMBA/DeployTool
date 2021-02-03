@@ -420,7 +420,7 @@ $WPF_ComputerName.Add_TextChanged({
 ##############################################################################
 #                  RECHERCHE / AFFICHAGE SEQUENCES DE TACHES                 #
 ############################################################################## 
-XML]$TaskSequencesFile = Get-Content -path \$ServeurMDT\$DeploymentShareSMB\Control\TaskSequences.xml
+[XML]$TaskSequencesFile = Get-Content -path \\$ServeurMDT\$DeploymentShareSMB\Control\TaskSequences.xml
 $TaskSequencesList = $TaskSequencesFile.tss.ts
 
 foreach ($TaskSequence in $TaskSequencesList) {
