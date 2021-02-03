@@ -113,7 +113,7 @@ $WPF_ExitI.Add_Click({
 })
 
 $WPF_Password.Add_TextChanged({
-  if(($WPF_MDTJD.Text -ne $null) -and ($WPF_Password.Text -ne $null)){
+  if(($WPF_MDTJD.Text.Length -ne 0) -and ($WPF_Password.Password.Length -ne 0)){
     $WPF_Connexion.IsEnabled = "True"
   }
   else {
@@ -122,7 +122,7 @@ $WPF_Password.Add_TextChanged({
 })
 
 $WPF_MDTJD.Add_TextChanged({
-  if(($WPF_MDTJD.Text -ne $null) -and ($WPF_Password.Text -ne $null)){
+  if(($WPF_MDTJD.Text.Length -ne 0) -and ($WPF_Password.Password.Length -ne 0)){
     $WPF_Connexion.IsEnabled = "True"
   }
   else {
@@ -265,10 +265,22 @@ $WPF_Gitlab.Add_Click({
 
 $Form.Add_ContentRendered({
   try {
+    $title = "DeployTools"
+    $Message = "Connexion au serveur de base de donnée $ServeurSQL, merci de patienter"
+    $Type = "Info"
+
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+    $notify = new-object system.windows.forms.notifyicon
+    $notify.icon = $icon
+    $notify.visible = $true
+    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
+
     Connect-MDTDatabase -sqlServer $ServeurSQL -instance SQLEXPRESS -database MDT
     
     $title = "DeployTools"
-    $Message = "Vous ête connecté au serveur de base de donnée $ServeurSQL"
+    $Message = "Vous êtes connecté au serveur de base de donnée $ServeurSQL"
     $Type = "Info"
 
     [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
