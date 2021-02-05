@@ -113,7 +113,7 @@ $WPF_ExitI.Add_Click({
   $Form.Close()
 })
 
-$WPF_Password.Add_TextChanged({
+$WPF_Password.Add_PasswordChanged({
   if(($WPF_MDTJD.Text.Length -ne 0) -and ($WPF_Password.Password.Length -ne 0)){
     $WPF_Connexion.IsEnabled = "True"
   }
@@ -262,8 +262,6 @@ $WPF_Gitlab.Add_Click({
 ##############################################################################
 #                           CONNECTION A LA  BDD                             #
 ############################################################################## 
-
-
 $Form.Add_ContentRendered({
   try {
     $title = "DeployTools"
@@ -307,7 +305,7 @@ $Form.Add_ContentRendered({
     $notify.visible = $true
     $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
   }
-  
+
 })
 
 ##############################################################################
@@ -426,8 +424,8 @@ $TaskSequencesList = $TaskSequencesFile.tss.ts
 
 foreach ($TaskSequence in $TaskSequencesList) {
   $GroupsList = New-Object PSObject
-  $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.Name -passthru
-  $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Description -passthru	
+  $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
+  $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Name -passthru	
   $WPF_TaskSequences.Items.Add($GroupsList) > $null
 }
 
