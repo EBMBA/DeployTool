@@ -4,7 +4,7 @@ Function Search {
         [string]$Filter
     )
     process{
-        $ListName=(Get-ADComputer -Filter "Name -like '*$filter*'" -Properties Name).name
+        $ListName=(Get-ADComputer -Filter "Name -like '*$filter*'" -Properties * | FT Name,IPv4Address,whenChanged,OperatingSystem,OperatingSystemVersion)
     }
 
     end{
@@ -14,3 +14,8 @@ Function Search {
 
 
 }
+
+
+
+
+
