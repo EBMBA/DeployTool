@@ -131,7 +131,6 @@ $WPF_MDTJD.Add_TextChanged({
   }
 })
 
-
 $WPF_Connexion.Add_Click({
   $DomainAdminEnter = $WPF_MDTJD.Text
   $password = ConvertTo-SecureString $WPF_Password.Password -AsPlainText -Force  
@@ -140,6 +139,17 @@ $WPF_Connexion.Add_Click({
   $import=Import-Clixml -Path $PathLogin
   $Script:Password=Decode-SecureStringPassword $import.Password
   $Script:DomainAdmin = $import.UserName
+  $title = "DeployTools"
+  $Message = "Identifiants enregistrés"
+  $Type = "Info"
+
+  [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+  $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+  $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+  $notify = new-object system.windows.forms.notifyicon
+  $notify.icon = $icon
+  $notify.visible = $true
+  $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
 })
 
 #########################################################################
@@ -451,7 +461,20 @@ $WPF_Create.Add_Click({
       New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
         TaskSequenceID="$TaskSequenceSelect"; FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
         JoinDomain="$JoinDomain"; DomainAdmin="$Script:DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
-        SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";}
+        SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
+        SkipAdminPassword=YES;
+        SkipProductKey=YES;
+        SkipComputerName=YES;
+        SkipDomainMembership=YES;
+        SkipUserData=YES;
+        SkipLocaleSelection=YES;
+        SkipTaskSequence=YES;
+        SkipTimeZone=YES;
+        SkipApplications=YES;
+        SkipBitLocker=YES;
+        SkipSummary=YES;
+        SkipCapture=YES;
+        SkipBDDWelcome=YES;}
       }
     "Portable" {
       $MacAddress = $WPF_MacAddress.Text
@@ -463,7 +486,20 @@ $WPF_Create.Add_Click({
       New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
       TaskSequenceID="$TaskSequenceSelect"; FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
       JoinDomain="$JoinDomain"; DomainAdmin="$Script:DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
-      SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";}
+      SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
+      SkipAdminPassword=YES;
+      SkipProductKey=YES;
+      SkipComputerName=YES;
+      SkipDomainMembership=YES;
+      SkipUserData=YES;
+      SkipLocaleSelection=YES;
+      SkipTaskSequence=YES;
+      SkipTimeZone=YES;
+      SkipApplications=YES;
+      SkipBitLocker=YES;
+      SkipSummary=YES;
+      SkipCapture=YES;
+      SkipBDDWelcome=YES;}
       }
     "Fixe" { 
       $MacAddress = $WPF_MacAddress.Text
@@ -475,7 +511,20 @@ $WPF_Create.Add_Click({
       New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ OSInstall='YES' ; OSDComputerName="$ComputerName"; OrgName= "$OrgName";
       TaskSequenceID="$TaskSequenceSelect"; FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
       JoinDomain="$JoinDomain"; DomainAdmin="$Script:DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
-      SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";}
+      SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
+      SkipAdminPassword=YES;
+      SkipProductKey=YES;
+      SkipComputerName=YES;
+      SkipDomainMembership=YES;
+      SkipUserData=YES;
+      SkipLocaleSelection=YES;
+      SkipTaskSequence=YES;
+      SkipTimeZone=YES;
+      SkipApplications=YES;
+      SkipBitLocker=YES;
+      SkipSummary=YES;
+      SkipCapture=YES;
+      SkipBDDWelcome=YES;}
       }
     Default {}
   }
