@@ -462,19 +462,19 @@ $WPF_Create.Add_Click({
         TaskSequenceID="$TaskSequenceSelect"; FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
         JoinDomain="$JoinDomain"; DomainAdmin="$Script:DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
         SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
-        SkipAdminPassword=YES;
-        SkipProductKey=YES;
-        SkipComputerName=YES;
-        SkipDomainMembership=YES;
-        SkipUserData=YES;
-        SkipLocaleSelection=YES;
-        SkipTaskSequence=YES;
-        SkipTimeZone=YES;
-        SkipApplications=YES;
-        SkipBitLocker=YES;
-        SkipSummary=YES;
-        SkipCapture=YES;
-        SkipBDDWelcome=YES;}
+        SkipAdminPassword="YES";
+        SkipProductKey="YES";
+        SkipComputerName="YES";
+        SkipDomainMembership="YES";
+        SkipUserData="YES";
+        SkipLocaleSelection="YES";
+        SkipTaskSequence="YES";
+        SkipTimeZone="YES";
+        SkipApplications="YES";
+        SkipBitLocker="YES";
+        SkipSummary="YES";
+        SkipCapture="YES";
+        SkipBDDWelcome="YES";}
       }
     "Portable" {
       $MacAddress = $WPF_MacAddress.Text
@@ -487,19 +487,19 @@ $WPF_Create.Add_Click({
       TaskSequenceID="$TaskSequenceSelect"; FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
       JoinDomain="$JoinDomain"; DomainAdmin="$Script:DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
       SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
-      SkipAdminPassword=YES;
-      SkipProductKey=YES;
-      SkipComputerName=YES;
-      SkipDomainMembership=YES;
-      SkipUserData=YES;
-      SkipLocaleSelection=YES;
-      SkipTaskSequence=YES;
-      SkipTimeZone=YES;
-      SkipApplications=YES;
-      SkipBitLocker=YES;
-      SkipSummary=YES;
-      SkipCapture=YES;
-      SkipBDDWelcome=YES;}
+      SkipAdminPassword="YES";
+      SkipProductKey="YES";
+      SkipComputerName="YES";
+      SkipDomainMembership="YES";
+      SkipUserData="YES";
+      SkipLocaleSelection="YES";
+      SkipTaskSequence="YES";
+      SkipTimeZone="YES";
+      SkipApplications="YES";
+      SkipBitLocker="YES";
+      SkipSummary="YES";
+      SkipCapture="YES";
+      SkipBDDWelcome="YES";}
       }
     "Fixe" { 
       $MacAddress = $WPF_MacAddress.Text
@@ -512,19 +512,19 @@ $WPF_Create.Add_Click({
       TaskSequenceID="$TaskSequenceSelect"; FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
       JoinDomain="$JoinDomain"; DomainAdmin="$Script:DomainAdmin"; DomainAdminDomain="$DomainAdminDomain"; DomainAdminPassword="$Script:Password"; MachineObjectOU=$MachineObjectOU;
       SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
-      SkipAdminPassword=YES;
-      SkipProductKey=YES;
-      SkipComputerName=YES;
-      SkipDomainMembership=YES;
-      SkipUserData=YES;
-      SkipLocaleSelection=YES;
-      SkipTaskSequence=YES;
-      SkipTimeZone=YES;
-      SkipApplications=YES;
-      SkipBitLocker=YES;
-      SkipSummary=YES;
-      SkipCapture=YES;
-      SkipBDDWelcome=YES;}
+      SkipAdminPassword="YES";
+      SkipProductKey="YES";
+      SkipComputerName="YES";
+      SkipDomainMembership="YES";
+      SkipUserData="YES";
+      SkipLocaleSelection="YES";
+      SkipTaskSequence="YES";
+      SkipTimeZone="YES";
+      SkipApplications="YES";
+      SkipBitLocker="YES";
+      SkipSummary="YES";
+      SkipCapture="YES";
+      SkipBDDWelcome="YES";}
       }
     Default {}
   }
