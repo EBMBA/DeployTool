@@ -185,6 +185,61 @@ $WPF_Connexion.Add_Click({
     $title = "DeployTools"
     $Message = "Paramètres enregistrés"
     $Type = "Info"
+
+    try {
+      $titleConnexion = "DeployTools"
+      $MessageConnexion = "Connexion au serveur de base de donnée $Script:ServeurSQL, merci de patienter"
+      $TypeConnexion = "Info"
+
+      [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+      $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+      $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+      $notify = new-object system.windows.forms.notifyicon
+      $notify.icon = $icon
+      $notify.visible = $true
+      $notify.showballoontip(10,$titleConnexion,$MessageConnexion, [system.windows.forms.tooltipicon]::$TypeConnexion)
+
+      Connect-MDTDatabase -sqlServer $Script:ServeurSQL -instance SQLEXPRESS -database MDT
+      
+      $titleConnexion = "DeployTools"
+      $MessageConnexion = "Vous êtes connecté au serveur de base de donnée $Script:ServeurSQL"
+      $TypeConnexion = "Info"
+
+      [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+      $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+      $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+      $notify = new-object system.windows.forms.notifyicon
+      $notify.icon = $icon
+      $notify.visible = $true
+      $notify.showballoontip(10,$titleConnexion,$MessageConnexion, [system.windows.forms.tooltipicon]::$TypeConnexion)
+    }
+    catch {
+      $titleConnexion = "DeployTools"
+      $MessageConnexion = "Le serveur de base de donnée $Script:ServeurSQL n'est pas accessible"
+      $TypeConnexion = "Error"
+
+      [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+      $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+      $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+      $notify = new-object system.windows.forms.notifyicon
+      $notify.icon = $icon
+      $notify.visible = $true
+      $notify.showballoontip(10,$titleConnexion,$MessageConnexion, [system.windows.forms.tooltipicon]::$TypeConnexion)
+    }
+
+    [XML]$TaskSequencesFile = Get-Content -path \\$Script:ServeurMDT\$Script:DeploymentShareSMB\Control\TaskSequences.xml
+    $TaskSequencesList = $TaskSequencesFile.tss.ts
+
+    foreach ($TaskSequence in $TaskSequencesList) {
+      $GroupsList = New-Object PSObject
+      $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
+      $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Name -passthru	
+      $WPF_TaskSequences.Items.Add($GroupsList) > $null
+    }
+    $Script:PresenceParameters = Test-Path $PathParameters
+    if(($null -eq $TaskSequencesList) -and ($true -eq $Script:PresenceParameters)){
+      New-MahappsMessage -title "Erreur" -Message "Aucune TaskSequences d'active"
+    }
   }
   elseif (Validate-IsEmptyTrim($WPF_ServeurMDT.Text)) {
     $DomainAdminEnter = $WPF_MDTJD.Text.Trim()
@@ -222,6 +277,61 @@ $WPF_Connexion.Add_Click({
     $title = "DeployTools"
     $Message = "Identifiants et paramètres enregistrés"
     $Type = "Info"
+
+    try {
+      $titleConnexion = "DeployTools"
+      $MessageConnexion = "Connexion au serveur de base de donnée $Script:ServeurSQL, merci de patienter"
+      $TypeConnexion = "Info"
+
+      [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+      $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+      $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+      $notify = new-object system.windows.forms.notifyicon
+      $notify.icon = $icon
+      $notify.visible = $true
+      $notify.showballoontip(10,$titleConnexion,$MessageConnexion, [system.windows.forms.tooltipicon]::$TypeConnexion)
+
+      Connect-MDTDatabase -sqlServer $Script:ServeurSQL -instance SQLEXPRESS -database MDT
+      
+      $titleConnexion = "DeployTools"
+      $MessageConnexion = "Vous êtes connecté au serveur de base de donnée $Script:ServeurSQL"
+      $TypeConnexion = "Info"
+
+      [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+      $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+      $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+      $notify = new-object system.windows.forms.notifyicon
+      $notify.icon = $icon
+      $notify.visible = $true
+      $notify.showballoontip(10,$titleConnexion,$MessageConnexion, [system.windows.forms.tooltipicon]::$TypeConnexion)
+    }
+    catch {
+      $titleConnexion = "DeployTools"
+      $MessageConnexion = "Le serveur de base de donnée $Script:ServeurSQL n'est pas accessible"
+      $TypeConnexion = "Error"
+
+      [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+      $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+      $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+      $notify = new-object system.windows.forms.notifyicon
+      $notify.icon = $icon
+      $notify.visible = $true
+      $notify.showballoontip(10,$titleConnexion,$MessageConnexion, [system.windows.forms.tooltipicon]::$TypeConnexion)
+    }
+
+    [XML]$TaskSequencesFile = Get-Content -path \\$Script:ServeurMDT\$Script:DeploymentShareSMB\Control\TaskSequences.xml
+    $TaskSequencesList = $TaskSequencesFile.tss.ts
+
+    foreach ($TaskSequence in $TaskSequencesList) {
+      $GroupsList = New-Object PSObject
+      $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
+      $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Name -passthru	
+      $WPF_TaskSequences.Items.Add($GroupsList) > $null
+    }
+    
+    if(($null -eq $TaskSequencesList)){
+      New-MahappsMessage -title "Erreur" -Message "Aucune TaskSequences d'active"
+    }
   }
 
   [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
@@ -384,47 +494,48 @@ $WPF_Gitlab.Add_Click({
 #                           CONNECTION A LA  BDD                             #
 ############################################################################## 
 $Form.Add_ContentRendered({
-  try {
-    $title = "DeployTools"
-    $Message = "Connexion au serveur de base de donnée $Script:ServeurSQL, merci de patienter"
-    $Type = "Info"
+  if($true -eq $Script:PresenceParameters){
+    try {
+      $title = "DeployTools"
+      $Message = "Connexion au serveur de base de donnée $Script:ServeurSQL, merci de patienter"
+      $Type = "Info"
 
-    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
-    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
-    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
-    $notify = new-object system.windows.forms.notifyicon
-    $notify.icon = $icon
-    $notify.visible = $true
-    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
+      [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+      $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+      $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+      $notify = new-object system.windows.forms.notifyicon
+      $notify.icon = $icon
+      $notify.visible = $true
+      $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
 
-    Connect-MDTDatabase -sqlServer $Script:ServeurSQL -instance SQLEXPRESS -database MDT
-    
-    $title = "DeployTools"
-    $Message = "Vous êtes connecté au serveur de base de donnée $Script:ServeurSQL"
-    $Type = "Info"
+      Connect-MDTDatabase -sqlServer $Script:ServeurSQL -instance SQLEXPRESS -database MDT
+      
+      $title = "DeployTools"
+      $Message = "Vous êtes connecté au serveur de base de donnée $Script:ServeurSQL"
+      $Type = "Info"
 
-    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
-    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
-    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
-    $notify = new-object system.windows.forms.notifyicon
-    $notify.icon = $icon
-    $notify.visible = $true
-    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
+      [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+      $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+      $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+      $notify = new-object system.windows.forms.notifyicon
+      $notify.icon = $icon
+      $notify.visible = $true
+      $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
+    }
+    catch {
+      $title = "DeployTools"
+      $Message = "Le serveur de base de donnée $Script:ServeurSQL n'est pas accessible"
+      $Type = "Error"
+
+      [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+      $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+      $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+      $notify = new-object system.windows.forms.notifyicon
+      $notify.icon = $icon
+      $notify.visible = $true
+      $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
+    }
   }
-  catch {
-    $title = "DeployTools"
-    $Message = "Le serveur de base de donnée $Script:ServeurSQL n'est pas accessible"
-    $Type = "Error"
-
-    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
-    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
-    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
-    $notify = new-object system.windows.forms.notifyicon
-    $notify.icon = $icon
-    $notify.visible = $true
-    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
-  }
-
 })
 
 ##############################################################################
@@ -538,19 +649,21 @@ $WPF_ComputerName.Add_TextChanged({
 ##############################################################################
 #                  RECHERCHE / AFFICHAGE SEQUENCES DE TACHES                 #
 ############################################################################## 
-[XML]$TaskSequencesFile = Get-Content -path \\$Script:ServeurMDT\$Script:DeploymentShareSMB\Control\TaskSequences.xml
-$TaskSequencesList = $TaskSequencesFile.tss.ts
+if ($true -eq $Script:PresenceParameters) {
+  [XML]$TaskSequencesFile = Get-Content -path \\$Script:ServeurMDT\$Script:DeploymentShareSMB\Control\TaskSequences.xml
+  $TaskSequencesList = $TaskSequencesFile.tss.ts
 
-foreach ($TaskSequence in $TaskSequencesList) {
-  $GroupsList = New-Object PSObject
-  $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
-  $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Name -passthru	
-  $WPF_TaskSequences.Items.Add($GroupsList) > $null
+  foreach ($TaskSequence in $TaskSequencesList) {
+    $GroupsList = New-Object PSObject
+    $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
+    $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Name -passthru	
+    $WPF_TaskSequences.Items.Add($GroupsList) > $null
+  }
 }
 
 # Erreur aucune TS active
 $Form.Add_ContentRendered({
-  if($null -eq $TaskSequencesList){
+  if(($null -eq $TaskSequencesList) -and ($true -eq $Script:PresenceParameters)){
     New-MahappsMessage -title "Erreur" -Message "Aucune TaskSequences d'active"
   }
 })
