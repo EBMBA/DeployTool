@@ -320,7 +320,52 @@
                               Content="Quitter"/> 
                         </StackPanel>
                      </StackPanel>
-                  </StackPanel>   
+                     <Label
+                        Margin="20 0 0 40"
+                        Content="Entrez les paramètres généraux liés aux serveurs"
+                        FontSize="25"
+                        FontWeight="Thin"/>
+                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                        <StackPanel Orientation="Vertical">
+                           <StackPanel Orientation="Horizontal">
+                              <Label Content="Nom du serveur de deploiement :" FontWeight="Bold" Margin="-2 20 5 0"/>
+                              <TextBox
+                                 Margin="50 20 5 0"
+                                 Name="ServeurMDT"
+                                 Width="130"
+                                 >
+                              </TextBox>
+                           </StackPanel>
+                           <StackPanel Margin="0 20 0 0" Orientation="Horizontal">
+                              <Label Content="Nom du partage :" FontWeight="Bold"/>
+                              <TextBox
+                                 Name="DeploymentShareSMB"
+                                 Width="130"
+                                 Margin="143 0 0 0"
+                              >
+                              </TextBox>
+                           </StackPanel>
+                           <StackPanel Margin="0 20 0 0" Orientation="Horizontal">
+                              <Label Content="Nom du serveur base de données :" FontWeight="Bold"/>
+                              <TextBox
+                                 Name="ServeurSQL"
+                                 Width="130"
+                                 Margin="48 0 0 0"
+                              >
+                              </TextBox>
+                           </StackPanel>
+                           <StackPanel Margin="0 20 0 0" Orientation="Horizontal">
+                              <Label Content="Nom de l'organisation :" FontWeight="Bold"/>
+                              <TextBox
+                                 Name="OrgName"
+                                 Width="130"
+                                 Margin="110 0 0 0"
+                              >
+                              </TextBox>
+                           </StackPanel>
+                        </StackPanel>
+                     </StackPanel>
+                  </StackPanel>  
                </TabItem>
                      
                <TabItem>
@@ -361,6 +406,30 @@
                               </ComboBox>
                            </StackPanel>
                            <StackPanel Orientation="Vertical">
+                              <Label Content="UILangage : " Margin="4 0 5 0" FontWeight="Bold"/>
+                              <ComboBox
+                                 Margin="4 0 5 0"
+                                 Name="UILangage"
+                                 Width="100">
+                              </ComboBox>
+                           </StackPanel>
+                           <StackPanel Orientation="Vertical">
+                              <Label Content="InputLocale : " Margin="4 0 5 0" FontWeight="Bold"/>
+                              <ComboBox
+                                 Margin="4 0 5 0"
+                                 Name="InputLocale"
+                                 Width="100">
+                              </ComboBox>
+                           </StackPanel>
+                           <StackPanel Orientation="Vertical">
+                              <Label Content="KeyboardLocale : " Margin="4 0 5 0" FontWeight="Bold"/>
+                              <ComboBox
+                                 Margin="4 0 5 0"
+                                 Name="KeyboardLocale"
+                                 Width="100">
+                              </ComboBox>
+                           </StackPanel>
+                           <StackPanel Orientation="Vertical">
                               <Label Content="SkipFinalSummary : " Margin="4 0 5 0" FontWeight="Bold"/>
                               <ComboBox
                                  Margin="4 0 5 0"
@@ -376,6 +445,14 @@
                                  Margin="4 0 5 0"
                                  Name="SMSTSORGNAME"
                                  Width="250">
+                              </TextBox>
+                           </StackPanel>
+                           <StackPanel Orientation="Vertical">
+                              <Label Content="Home Page IE : " Margin="4 0 5 0" FontWeight="Bold"/>
+                              <TextBox
+                                 Margin="4 0 5 0"
+                                 Name="Home_Page"
+                                 Width="100">
                               </TextBox>
                            </StackPanel>
                         </StackPanel>

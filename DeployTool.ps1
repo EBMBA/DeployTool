@@ -86,25 +86,59 @@ function Decode-SecureStringPassword
     }
     End
     {}
+}
+
+# Verifie si le champ est vide ou rempli par des espaces
+function Validate-IsEmptyTrim ([string] $field) {
+
+  if($field -eq $null -or $field.Trim().Length -eq 0) {
+    return $true    
   }
+      
+  return $false
+}
 #########################################################################
 #                       Page Identification        		                #
 #########################################################################
 $PathLogin = "$path\password.pwd"
+$PathParameters = "$path\parameters.pwd"
 #$PresencePassword = Test-Path $PathPassword
 
 $Form.Add_ContentRendered({
-  $PresencePassword = Test-Path $PathLogin
-  if($false -eq $PresencePassword){
+  $WPF_Connexion.IsEnabled = "True"
+  $Script:PresencePassword = Test-Path $PathLogin
+  $Script:PresenceParameters = Test-Path $PathParameters
+  if(($false -eq $Script:PresencePassword) -and ($true -eq $Script:PresenceParameters)){
+    $importParameters = Import-Clixml -Path $PathParameters
+    $Script:ServeurMDT = $importParameters.ServeurMDT
+    $Script:DeploymentShareSMB = $importParameters.DeploymentShareSMB
+    $Script:ServeurSQL = $importParameters.ServeurSQL
+    $Script:OrgName = $importParameters.OrgName
     $WPF_Onglet_Identification.IsSelected="True"
     New-MahappsMessage -title "Erreur" -Message "Entrez les identifiants de jonction de domaine"
     #$password = Get-Credential
     #Export-Clixml -path $path\password.pwd -InputObject $password
   }
+  elseif (($true -eq $Script:PresencePassword) -and ($false -eq $Script:PresenceParameters)) {
+    $import=Import-Clixml -Path $PathLogin
+    $Script:Password = Decode-SecureStringPassword $import.Password
+    $Script:DomainAdmin = $import.UserName
+    $WPF_Onglet_Identification.IsSelected="True"
+    New-MahappsMessage -title "Erreur" -Message "Entrez les paramètres généraux liées aux serveurs"
+  }
+  elseif (($false -eq $Script:PresencePassword) -and ($false -eq $Script:PresenceParameters)) {
+    $WPF_Onglet_Identification.IsSelected="True"
+    New-MahappsMessage -title "Erreur" -Message "Entrez les paramètres généraux liées aux serveurs et les identifiants de jonction de domaine"
+  }
   else {
     $import=Import-Clixml -Path $PathLogin
-    $Script:Password=Decode-SecureStringPassword $import.Password
+    $Script:Password = Decode-SecureStringPassword $import.Password
     $Script:DomainAdmin = $import.UserName
+    $importParameters = Import-Clixml -Path $PathParameters
+    $Script:ServeurMDT = $importParameters.ServeurMDT
+    $Script:DeploymentShareSMB = $importParameters.DeploymentShareSMB
+    $Script:ServeurSQL = $importParameters.ServeurSQL
+    $Script:OrgName = $importParameters.OrgName
   } 
 })
 
@@ -113,6 +147,7 @@ $WPF_ExitI.Add_Click({
   $Form.Close()
 })
 
+<#
 $WPF_Password.Add_PasswordChanged({
   if(($WPF_MDTJD.Text.Length -ne 0) -and ($WPF_Password.Password.Length -ne 0)){
     $WPF_Connexion.IsEnabled = "True"
@@ -130,18 +165,64 @@ $WPF_MDTJD.Add_TextChanged({
     $WPF_Connexion.IsEnabled = "False"
   }
 })
+#>
 
 $WPF_Connexion.Add_Click({
-  $DomainAdminEnter = $WPF_MDTJD.Text
-  $password = ConvertTo-SecureString $WPF_Password.Password -AsPlainText -Force  
-  $login = New-Object System.Management.Automation.PSCredential -ArgumentList $DomainAdminEnter,$password
-  Export-Clixml -path $path\password.pwd -InputObject $login
-  $import=Import-Clixml -Path $PathLogin
-  $Script:Password=Decode-SecureStringPassword $import.Password
-  $Script:DomainAdmin = $import.UserName
-  $title = "DeployTools"
-  $Message = "Identifiants enregistrés"
-  $Type = "Info"
+  if (Validate-IsEmptyTrim($WPF_MDTJD.Text)) {
+    Write-Host "vide"
+    $parameters = New-Object -TypeName PSCustomObject -Property @{
+      "ServeurMDT" = $($WPF_ServeurMDT.Text.Trim())
+      "DeploymentShareSMB" = $($WPF_DeploymentShareSMB.Text.Trim())
+      "ServeurSQL" = $($WPF_ServeurSQL.Text.Trim())
+      "OrgName" = $($WPF_OrgName.Text.Trim())
+    }
+    Export-Clixml -Path $PathParameters -InputObject $parameters
+    $importParameters = Import-Clixml -Path $PathParameters
+    $Script:ServeurMDT = $importParameters.ServeurMDT
+    $Script:DeploymentShareSMB = $importParameters.DeploymentShareSMB
+    $Script:ServeurSQL = $importParameters.ServeurSQL
+    $Script:OrgName = $importParameters.OrgName
+    $title = "DeployTools"
+    $Message = "Paramètres enregistrés"
+    $Type = "Info"
+  }
+  elseif (Validate-IsEmptyTrim($WPF_ServeurMDT.Text)) {
+    $DomainAdminEnter = $WPF_MDTJD.Text.Trim()
+    $password = ConvertTo-SecureString $WPF_Password.Password -AsPlainText -Force  
+    $login = New-Object System.Management.Automation.PSCredential -ArgumentList $DomainAdminEnter,$password
+    Export-Clixml -path $path\password.pwd -InputObject $login
+    $import=Import-Clixml -Path $PathLogin
+    $Script:Password=Decode-SecureStringPassword $import.Password
+    $Script:DomainAdmin = $import.UserName
+    $title = "DeployTools"
+    $Message = "Identifiants enregistrés"
+    $Type = "Info"
+  }
+
+  elseif (-not(Validate-IsEmptyTrim($WPF_ServeurMDT.Text)) -and -not(Validate-IsEmptyTrim($WPF_MDTJD.Text))) {
+    $parameters = New-Object -TypeName PSCustomObject -Property @{
+      "ServeurMDT" = $($WPF_ServeurMDT.Text.Trim())
+      "DeploymentShareSMB" = $($WPF_DeploymentShareSMB.Text.Trim())
+      "ServeurSQL" = $($WPF_ServeurSQL.Text.Trim())
+      "OrgName" = $($WPF_OrgName.Text.Trim())
+    }
+    Export-Clixml -Path $PathParameters -InputObject $parameters
+    $importParameters = Import-Clixml -Path $PathParameters
+    $Script:ServeurMDT = $importParameters.ServeurMDT
+    $Script:DeploymentShareSMB = $importParameters.DeploymentShareSMB
+    $Script:ServeurSQL = $importParameters.ServeurSQL
+    $Script:OrgName = $importParameters.OrgName
+    $DomainAdminEnter = $WPF_MDTJD.Text.Trim()
+    $password = ConvertTo-SecureString $WPF_Password.Password -AsPlainText -Force  
+    $login = New-Object System.Management.Automation.PSCredential -ArgumentList $DomainAdminEnter,$password
+    Export-Clixml -path $path\password.pwd -InputObject $login
+    $import=Import-Clixml -Path $PathLogin
+    $Script:Password=Decode-SecureStringPassword $import.Password
+    $Script:DomainAdmin = $import.UserName
+    $title = "DeployTools"
+    $Message = "Identifiants et paramètres enregistrés"
+    $Type = "Info"
+  }
 
   [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
   $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
@@ -157,13 +238,28 @@ $WPF_Connexion.Add_Click({
 #########################################################################
 $Form.Add_ContentRendered({
   switch ($WPF_ServiceView.Visibility ) {
-    'Visible' { $Script:SMSTSORGNAMEs="Deploiement du service $($WPF_Service.SelectedItem.ToString()) de $OrgName" }
-    'Collapsed' { $Script:SMSTSORGNAMEs="Deploiement d'un serveur de $OrgName" }
+    'Visible' { $Script:SMSTSORGNAMEs="Deploiement du service $($WPF_Service.SelectedItem.ToString()) de $Script:OrgName" }
+    'Collapsed' { $Script:SMSTSORGNAMEs="Deploiement d'un serveur de $Script:OrgName" }
     Default {}
   }
   $FinishActions=("LOGOFF","SHUTDOWN","REBOOT","blank")
   $TimeZoneNames=("Romance Standard Time", "GMT Standard Time","W. Europe Standard Time")
   $SkipFinalSummarys=("NO","YES")
+  $UILangages=("fr-FR", "en-US", "es-ES", "en-GB", "de-DE")
+  $InputLocales=("fr-FR", "en-US", "es-ES", "en-GB", "de-DE")
+  $KeyboardLocales=("fr-FR", "en-US", "es-ES", "en-GB", "de-DE")
+
+  foreach ($UILangage in $UILangages) {
+    $WPF_UILangage.Items.Add($UILangage)
+  }
+
+  foreach ($InputLocale in $InputLocales) {
+    $WPF_InputLocale.Items.Add($InputLocale)
+  }
+
+  foreach ($KeyboardLocale in $KeyboardLocales) {
+    $WPF_KeyboardLocale.Items.Add($KeyboardLocale)
+  }
 
   foreach ($FinishAction in $FinishActions) {
     $WPF_FinishAction.Items.Add($FinishAction)
@@ -181,27 +277,38 @@ $Form.Add_ContentRendered({
   $WPF_FinishAction.SelectedIndex=0
   $WPF_SkipFinalSummary.SelectedIndex=0
   $WPF_TimeZoneName.SelectedIndex=0
+  $WPF_UILangage.SelectedIndex=0
+  $WPF_InputLocale.SelectedIndex=0
+  $WPF_KeyboardLocale.SelectedIndex=0
+  $WPF_Home_Page=$DomainRoot
   $WPF_Enregister.IsEnabled="True"
 })
+
 $WPF_ExitP.Add_Click({
   $Form.Close()
 })
 
 $WPF_Service.add_SelectionChanged({
   switch ($WPF_ServiceView.Visibility ) {
-    'Visible' { $Script:SMSTSORGNAMEs="Deploiement du service $($WPF_Service.SelectedItem.ToString()) de $OrgName" }
-    'Collapsed' { $Script:SMSTSORGNAMEs="Deploiement d'un serveur de $OrgName" }
+    'Visible' { $Script:SMSTSORGNAMEs="Deploiement du service $($WPF_Service.SelectedItem.ToString()) de $Script:OrgName" }
+    'Collapsed' { $Script:SMSTSORGNAMEs="Deploiement d'un serveur de $Script:OrgName" }
     Default {}
   }
   $WPF_SMSTSORGNAME.Text=$Script:SMSTSORGNAMEs
 })
+
 $WPF_Machine.add_SelectionChanged({
   switch ($WPF_ServiceView.Visibility ) {
-    'Visible' { $Script:SMSTSORGNAMEs="Deploiement du service $($WPF_Service.SelectedItem.ToString()) de $OrgName" }
-    'Collapsed' { $Script:SMSTSORGNAMEs="Deploiement d'un serveur de $OrgName" }
-    Default {$Script:SMSTSORGNAMEs="Deploiement d'un serveur de $OrgName" }
+    'Visible' { $Script:SMSTSORGNAMEs="Deploiement du service $($WPF_Service.SelectedItem.ToString()) de $Script:OrgName" }
+    'Collapsed' { $Script:SMSTSORGNAMEs="Deploiement d'un serveur de $Script:OrgName" }
+    Default {$Script:SMSTSORGNAMEs="Deploiement d'un serveur de $Script:OrgName" }
   }
   $WPF_SMSTSORGNAME.Text=$Script:SMSTSORGNAMEs
+})
+
+$WPF_UILangage.add_SelectionChanged({
+  $WPF_InputLocale.SelectedIndex=$WPF_UILangage.SelectedIndex
+  $WPF_KeyboardLocale.SelectedIndex=$WPF_UILangage.SelectedIndex
 })
 
 $WPF_Enregister.Add_Click({
@@ -210,8 +317,8 @@ $WPF_Enregister.Add_Click({
 
 $WPF_Defaut.Add_Click({
   switch ($WPF_ServiceView.Visibility ) {
-    'Visible' { $Script:SMSTSORGNAMEs="Deploiement du service $($WPF_Service.SelectedItem.ToString()) de $OrgName" }
-    'Collapsed' { $Script:SMSTSORGNAMEs="Deploiement d'un serveur de $OrgName" }
+    'Visible' { $Script:SMSTSORGNAMEs="Deploiement du service $($WPF_Service.SelectedItem.ToString()) de $Script:OrgName" }
+    'Collapsed' { $Script:SMSTSORGNAMEs="Deploiement d'un serveur de $Script:OrgName" }
     Default {}
   }
 
@@ -219,16 +326,20 @@ $WPF_Defaut.Add_Click({
   $WPF_FinishAction.SelectedIndex=0
   $WPF_SkipFinalSummary.SelectedIndex=0
   $WPF_TimeZoneName.SelectedIndex=0
+  $WPF_UILangage.SelectedIndex=0
+  $WPF_InputLocale.SelectedIndex=0
+  $WPF_KeyboardLocale.SelectedIndex=0
+  $WPF_Home_Page=$DomainRoot
 })
 #########################################################################
 #                       DATA       						       		                #
 #########################################################################
 
 #Données obligatoires à modifier 
-$ServeurMDT = "CR-SRV-MDT1"
-$DeploymentShareSMB = "DEPLOYMENTSHARE$"
-$ServeurSQL = "CR-SRV-MDT1"
-$OrgName = "CHL"
+#$ServeurMDT = "CR-SRV-MDT1"
+#$DeploymentShareSMB = "DEPLOYMENTSHARE$"
+#$ServeurSQL = "CR-SRV-MDT1"
+#$OrgName = "CHL"
 $DomainRoot = (get-ADDomain).DNSRoot
 $JoinDomain = "$DomainRoot"
 $DomainAdminDomain = "$DomainRoot"
@@ -275,7 +386,7 @@ $WPF_Gitlab.Add_Click({
 $Form.Add_ContentRendered({
   try {
     $title = "DeployTools"
-    $Message = "Connexion au serveur de base de donnée $ServeurSQL, merci de patienter"
+    $Message = "Connexion au serveur de base de donnée $Script:ServeurSQL, merci de patienter"
     $Type = "Info"
 
     [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
@@ -286,10 +397,10 @@ $Form.Add_ContentRendered({
     $notify.visible = $true
     $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
 
-    Connect-MDTDatabase -sqlServer $ServeurSQL -instance SQLEXPRESS -database MDT
+    Connect-MDTDatabase -sqlServer $Script:ServeurSQL -instance SQLEXPRESS -database MDT
     
     $title = "DeployTools"
-    $Message = "Vous êtes connecté au serveur de base de donnée $ServeurSQL"
+    $Message = "Vous êtes connecté au serveur de base de donnée $Script:ServeurSQL"
     $Type = "Info"
 
     [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
@@ -301,10 +412,8 @@ $Form.Add_ContentRendered({
     $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
   }
   catch {
-    #New-MahappsMessage -title "Erreur" -Message "Le serveur $ServeurSQL n'est pas accessible"
-
     $title = "DeployTools"
-    $Message = "Le serveur de base de donnée $ServeurSQL n'est pas accessible"
+    $Message = "Le serveur de base de donnée $Script:ServeurSQL n'est pas accessible"
     $Type = "Error"
 
     [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
@@ -429,7 +538,7 @@ $WPF_ComputerName.Add_TextChanged({
 ##############################################################################
 #                  RECHERCHE / AFFICHAGE SEQUENCES DE TACHES                 #
 ############################################################################## 
-[XML]$TaskSequencesFile = Get-Content -path \\$ServeurMDT\$DeploymentShareSMB\Control\TaskSequences.xml
+[XML]$TaskSequencesFile = Get-Content -path \\$Script:ServeurMDT\$Script:DeploymentShareSMB\Control\TaskSequences.xml
 $TaskSequencesList = $TaskSequencesFile.tss.ts
 
 foreach ($TaskSequence in $TaskSequencesList) {
@@ -451,6 +560,13 @@ $Form.Add_ContentRendered({
 ############################################################################## 
 $WPF_Create.Add_Click({
   $Machine = $WPF_Machine.SelectedItem.ToString()
+  switch ($($WPF_InputLocale.SelectedItem.ToString())) {
+    "fr-FR" { $Script:InputLocale="040c:0000040c" }
+    "en-US" { $Script:InputLocale="0409:00000409" }
+    "es-ES" { $Script:InputLocale="0c0a:0000040a" }
+    "en-GB" { $Script:InputLocale="0809:00000809" }
+    "de-DE" { $Script:InputLocale="0407:00000407" }
+  }
   switch ($Machine) {
     "Serveur" {
       $MacAddress = $WPF_MacAddress.Text
@@ -463,7 +579,7 @@ $WPF_Create.Add_Click({
         OSDComputerName="$ComputerName"; 
         ComputerName="$ComputerName"; 
         FullName="$ComputerName"; 
-        OrgName= "$OrgName";
+        OrgName= "$Script:OrgName";
         TaskSequenceID="$TaskSequenceSelect"; 
         FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; 
         TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; 
@@ -474,9 +590,10 @@ $WPF_Create.Add_Click({
         DomainAdminPassword="$Script:Password"; 
         MachineObjectOU=$MachineObjectOU;
         SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
-        UILanguage="fr-FR";
-        InputLocale="040c:0000040c";
-        KeyboardLocale="fr-FR";
+        UILanguage="$($WPF_UILangage.SelectedItem.ToString())";
+        InputLocale="$Script:InputLocale";
+        KeyboardLocale="$($WPF_KeyboardLocale.SelectedItem.ToString())";
+        Home_Page="$($WPF_Home_Page.Text)";
         SkipAdminPassword="YES";
         SkipProductKey="YES";
         SkipComputerName="YES";
@@ -501,7 +618,7 @@ $WPF_Create.Add_Click({
       New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ 
         OSInstall='YES' ; 
         OSDComputerName="$ComputerName"; 
-        OrgName= "$OrgName";
+        OrgName= "$Script:OrgName";
         ComputerName="$ComputerName"; 
         FullName="$ComputerName"; 
         TaskSequenceID="$TaskSequenceSelect"; 
@@ -514,9 +631,10 @@ $WPF_Create.Add_Click({
         DomainAdminPassword="$Script:Password"; 
         MachineObjectOU=$MachineObjectOU;
         SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
-        UILanguage="fr-FR";
-        InputLocale="040c:0000040c";
-        KeyboardLocale="fr-FR";
+        UILanguage="$($WPF_UILangage.SelectedItem.ToString())";
+        InputLocale="$Script:InputLocale";
+        KeyboardLocale="$($WPF_KeyboardLocale.SelectedItem.ToString())";
+        Home_Page="$($WPF_Home_Page.Text)";
         SkipAdminPassword="YES";
         SkipProductKey="YES";
         SkipComputerName="YES";
@@ -543,7 +661,7 @@ $WPF_Create.Add_Click({
         OSDComputerName="$ComputerName";
         ComputerName="$ComputerName"; 
         FullName="$ComputerName";  
-        OrgName= "$OrgName";
+        OrgName= "$Script:OrgName";
         TaskSequenceID="$TaskSequenceSelect"; 
         FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; 
         TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; 
@@ -554,9 +672,10 @@ $WPF_Create.Add_Click({
         DomainAdminPassword="$Script:Password"; 
         MachineObjectOU=$MachineObjectOU;
         SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
-        UILanguage="fr-FR";
-        InputLocale="040c:0000040c";
-        KeyboardLocale="fr-FR";
+        UILanguage="$($WPF_UILangage.SelectedItem.ToString())";
+        InputLocale="$Script:InputLocale";
+        KeyboardLocale="$($WPF_KeyboardLocale.SelectedItem.ToString())";
+        Home_Page="$($WPF_Home_Page.Text)";
         SkipAdminPassword="YES";
         SkipProductKey="YES";
         SkipComputerName="YES";
