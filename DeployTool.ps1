@@ -169,7 +169,6 @@ $WPF_MDTJD.Add_TextChanged({
 
 $WPF_Connexion.Add_Click({
   if (Validate-IsEmptyTrim($WPF_MDTJD.Text)) {
-    Write-Host "vide"
     $parameters = New-Object -TypeName PSCustomObject -Property @{
       "ServeurMDT" = $($WPF_ServeurMDT.Text.Trim())
       "DeploymentShareSMB" = $($WPF_DeploymentShareSMB.Text.Trim())
@@ -649,7 +648,26 @@ $WPF_ComputerName.Add_TextChanged({
 ##############################################################################
 #                  RECHERCHE / AFFICHAGE SEQUENCES DE TACHES                 #
 ############################################################################## 
-if ($true -eq $Script:PresenceParameters) {
+#$Script:PresenceParameters = Test-Path $PathParameters
+$Form.Add_ContentRendered({
+  if ($Script:PresenceParameters) {
+    [XML]$TaskSequencesFile = Get-Content -path \\$Script:ServeurMDT\$Script:DeploymentShareSMB\Control\TaskSequences.xml
+    $TaskSequencesList = $($TaskSequencesFile.tss.ts | where {$_.enable -eq 'True' -and $_.hide -eq 'False'})
+  
+    foreach ($TaskSequence in $TaskSequencesList) {
+      $GroupsList = New-Object PSObject
+      $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
+      $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Name -passthru	
+      $WPF_TaskSequences.Items.Add($GroupsList) > $null
+    }
+  }
+
+  if(($null -eq $TaskSequencesList) -and ($true -eq $Script:PresenceParameters)){
+    New-MahappsMessage -title "Erreur" -Message "Aucune TaskSequences d'active"
+  }
+})
+<#
+if ($Script:PresenceParameters) {
   [XML]$TaskSequencesFile = Get-Content -path \\$Script:ServeurMDT\$Script:DeploymentShareSMB\Control\TaskSequences.xml
   $TaskSequencesList = $TaskSequencesFile.tss.ts
 
@@ -661,13 +679,14 @@ if ($true -eq $Script:PresenceParameters) {
   }
 }
 
+
 # Erreur aucune TS active
 $Form.Add_ContentRendered({
   if(($null -eq $TaskSequencesList) -and ($true -eq $Script:PresenceParameters)){
     New-MahappsMessage -title "Erreur" -Message "Aucune TaskSequences d'active"
   }
 })
-
+#>
 ##############################################################################
 #                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
 ############################################################################## 
