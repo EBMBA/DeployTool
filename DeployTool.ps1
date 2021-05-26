@@ -1,4 +1,5 @@
-﻿[Void][System.Reflection.Assembly]::LoadWithPartialName('presentationframework') 
+﻿Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+[Void][System.Reflection.Assembly]::LoadWithPartialName('presentationframework') 
 foreach ($item in $(gci .\assembly\ -Filter *.dll).name) {
     [Void][System.Reflection.Assembly]::LoadFrom("assembly\$item")
 }
