@@ -99,6 +99,24 @@ function Validate-IsEmptyTrim ([string] $field) {
   return $false
 }
 #########################################################################
+#                       Page Recherche              		                #
+######################################################################### 
+
+$WPF_Filter.Add_Click({
+  $WPF_FilterTextBox.Text='test'
+})
+
+
+
+
+
+
+
+
+
+
+
+#########################################################################
 #                       Page Identification        		                #
 #########################################################################
 $PathLogin = "$path\password.pwd"
@@ -935,3 +953,4 @@ $WPF_ExitD.Add_Click({
 })
 
 $Form.ShowDialog() | Out-Null
+

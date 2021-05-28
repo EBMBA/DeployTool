@@ -220,7 +220,7 @@
                   </TabItem.HeaderTemplate>
                   <StackPanel HorizontalAlignment="center" VerticalAlignment="Top" Orientation="Vertical">
                      <Label
-                        Margin="50 0 0 50"
+                        Margin="50 0 0 12.5"
                         Content="Recherche de materiel dans le domaine"
                         FontSize="25"
                         FontWeight="Thin">
@@ -240,17 +240,27 @@
                            <DataGridTextColumn Binding="{Binding IPV4Address}" Header="IPV4 Address"/>
                         </DataGrid.Columns>
                      </DataGrid>
-                     <TextBox
+                      <StackPanel Orientation="Horizontal">
+                       <TextBox
                         Name="FilterTextBox"
-                        Width="500"
+                        Width="415"
                         Height="26"
                         HorizontalAlignment="Left"
                         Margin="2 10 0 0"
                         VerticalAlignment="Top"
                         Controls:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(Controls:TextBoxHelper.HasText), Mode=OneWay}"
-                        Controls:TextBoxHelper.Watermark="Filter the Title column"
+                        Controls:TextBoxHelper.Watermark="Nom de l'ordinateur"
                         Text=""
                         TextWrapping="Wrap"/>
+                        
+                       <Button
+                        Name="Filter"
+                        Width="75"
+                        Height="28"
+                        Margin="10 9 0 0"
+                        Content="Rechercher"
+                        IsEnabled="True"/>
+                     </StackPanel>
                   </StackPanel>
                </TabItem>
                      
