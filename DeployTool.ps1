@@ -710,138 +710,166 @@ $Form.Add_ContentRendered({
 #                  INTERACTION AVEC LA BASE DE DONNEE MDT                    #
 ############################################################################## 
 $WPF_Create.Add_Click({
-  $Machine = $WPF_Machine.SelectedItem.ToString()
-  switch ($($WPF_InputLocale.SelectedItem.ToString())) {
-    "fr-FR" { $Script:InputLocale="040c:0000040c" }
-    "en-US" { $Script:InputLocale="0409:00000409" }
-    "es-ES" { $Script:InputLocale="0c0a:0000040a" }
-    "en-GB" { $Script:InputLocale="0809:00000809" }
-    "de-DE" { $Script:InputLocale="0407:00000407" }
+  try {
+    $Machine = $WPF_Machine.SelectedItem.ToString()
+    switch ($($WPF_InputLocale.SelectedItem.ToString())) {
+      "fr-FR" { $Script:InputLocale="040c:0000040c" }
+      "en-US" { $Script:InputLocale="0409:00000409" }
+      "es-ES" { $Script:InputLocale="0c0a:0000040a" }
+      "en-GB" { $Script:InputLocale="0809:00000809" }
+      "de-DE" { $Script:InputLocale="0407:00000407" }
+    }
+    switch ($Machine) {
+      "Serveur" {
+        $MacAddress = $WPF_MacAddress.Text
+        $ComputerName = $WPF_ComputerName.Text
+        $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
+        $SearchBase=(Get-ADDomain).DistinguishedName
+        $MachineObjectOU =$((Get-ADOrganizationalUnit -filter {Name -like $Machine} -SearchBase $SearchBase).DistinguishedName)  
+        New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ 
+          OSInstall='YES' ; 
+          OSDComputerName="$ComputerName"; 
+          ComputerName="$ComputerName"; 
+          FullName="$ComputerName"; 
+          OrgName= "$Script:OrgName";
+          TaskSequenceID="$TaskSequenceSelect"; 
+          FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; 
+          TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; 
+          _SMSTSORGNAME="$($WPF_SMSTSORGNAME.Text)"; 
+          JoinDomain="$JoinDomain";
+          DomainAdmin="$Script:DomainAdmin"; 
+          DomainAdminDomain="$DomainAdminDomain"; 
+          DomainAdminPassword="$Script:Password"; 
+          MachineObjectOU=$MachineObjectOU;
+          SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
+          UILanguage="$($WPF_UILangage.SelectedItem.ToString())";
+          InputLocale="$Script:InputLocale";
+          KeyboardLocale="$($WPF_KeyboardLocale.SelectedItem.ToString())";
+          Home_Page="$($WPF_Home_Page.Text)";
+          SkipAdminPassword="YES";
+          SkipProductKey="YES";
+          SkipComputerName="YES";
+          SkipDomainMembership="YES";
+          SkipUserData="YES";
+          SkipLocaleSelection="YES";
+          SkipTaskSequence="YES";
+          SkipTimeZone="YES";
+          SkipApplications="YES";
+          SkipBitLocker="YES";
+          SkipSummary="YES";
+          SkipCapture="YES";
+          SkipBDDWelcome="YES";}
+        }
+      "Portable" {
+        $MacAddress = $WPF_MacAddress.Text
+        $ComputerName = $WPF_ComputerName.Text
+        $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
+        $Service = $WPF_Service.SelectedItem.ToString()
+        $SearchBase=(Get-ADDomain).DistinguishedName
+        $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
+        New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ 
+          OSInstall='YES' ; 
+          OSDComputerName="$ComputerName"; 
+          OrgName= "$Script:OrgName";
+          ComputerName="$ComputerName"; 
+          FullName="$ComputerName"; 
+          TaskSequenceID="$TaskSequenceSelect"; 
+          FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; 
+          TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; 
+          _SMSTSORGNAME="$($WPF_SMSTSORGNAME.Text)"; 
+          JoinDomain="$JoinDomain"; 
+          DomainAdmin="$Script:DomainAdmin"; 
+          DomainAdminDomain="$DomainAdminDomain"; 
+          DomainAdminPassword="$Script:Password"; 
+          MachineObjectOU=$MachineObjectOU;
+          SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
+          UILanguage="$($WPF_UILangage.SelectedItem.ToString())";
+          InputLocale="$Script:InputLocale";
+          KeyboardLocale="$($WPF_KeyboardLocale.SelectedItem.ToString())";
+          Home_Page="$($WPF_Home_Page.Text)";
+          SkipAdminPassword="YES";
+          SkipProductKey="YES";
+          SkipComputerName="YES";
+          SkipDomainMembership="YES";
+          SkipUserData="YES";
+          SkipLocaleSelection="YES";
+          SkipTaskSequence="YES";
+          SkipTimeZone="YES";
+          SkipApplications="YES";
+          SkipBitLocker="YES";
+          SkipSummary="YES";
+          SkipCapture="YES";
+          SkipBDDWelcome="YES";}
+        }
+      "Fixe" { 
+        $MacAddress = $WPF_MacAddress.Text
+        $ComputerName = $WPF_ComputerName.Text
+        $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
+        $Service = $WPF_Service.SelectedItem.ToString()
+        $SearchBase=(Get-ADDomain).DistinguishedName
+        $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
+        New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ 
+          OSInstall='YES' ; 
+          OSDComputerName="$ComputerName";
+          ComputerName="$ComputerName"; 
+          FullName="$ComputerName";  
+          OrgName= "$Script:OrgName";
+          TaskSequenceID="$TaskSequenceSelect"; 
+          FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; 
+          TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; 
+          _SMSTSORGNAME="$($WPF_SMSTSORGNAME.Text)"; 
+          JoinDomain="$JoinDomain"; 
+          DomainAdmin="$Script:DomainAdmin"; 
+          DomainAdminDomain="$DomainAdminDomain"; 
+          DomainAdminPassword="$Script:Password"; 
+          MachineObjectOU=$MachineObjectOU;
+          SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
+          UILanguage="$($WPF_UILangage.SelectedItem.ToString())";
+          InputLocale="$Script:InputLocale";
+          KeyboardLocale="$($WPF_KeyboardLocale.SelectedItem.ToString())";
+          Home_Page="$($WPF_Home_Page.Text)";
+          SkipAdminPassword="YES";
+          SkipProductKey="YES";
+          SkipComputerName="YES";
+          SkipDomainMembership="YES";
+          SkipUserData="YES";
+          SkipLocaleSelection="YES";
+          SkipTaskSequence="YES";
+          SkipTimeZone="YES";
+          SkipApplications="YES";
+          SkipBitLocker="YES";
+          SkipSummary="YES";
+          SkipCapture="YES";
+          SkipBDDWelcome="YES";}
+        }
+      Default {}
+    }
+    
+    $title = "DeployTools"
+    $Message = "Poste créé"
+    $Type = "Info"
+
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+    $notify = new-object system.windows.forms.notifyicon
+    $notify.icon = $icon
+    $notify.visible = $true
+    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
   }
-  switch ($Machine) {
-    "Serveur" {
-      $MacAddress = $WPF_MacAddress.Text
-      $ComputerName = $WPF_ComputerName.Text
-      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
-      $SearchBase=(Get-ADDomain).DistinguishedName
-      $MachineObjectOU =$((Get-ADOrganizationalUnit -filter {Name -like $Machine} -SearchBase $SearchBase).DistinguishedName)  
-      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ 
-        OSInstall='YES' ; 
-        OSDComputerName="$ComputerName"; 
-        ComputerName="$ComputerName"; 
-        FullName="$ComputerName"; 
-        OrgName= "$Script:OrgName";
-        TaskSequenceID="$TaskSequenceSelect"; 
-        FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; 
-        TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; 
-        _SMSTSORGNAME="$($WPF_SMSTSORGNAME.Text)"; 
-        JoinDomain="$JoinDomain";
-        DomainAdmin="$Script:DomainAdmin"; 
-        DomainAdminDomain="$DomainAdminDomain"; 
-        DomainAdminPassword="$Script:Password"; 
-        MachineObjectOU=$MachineObjectOU;
-        SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
-        UILanguage="$($WPF_UILangage.SelectedItem.ToString())";
-        InputLocale="$Script:InputLocale";
-        KeyboardLocale="$($WPF_KeyboardLocale.SelectedItem.ToString())";
-        Home_Page="$($WPF_Home_Page.Text)";
-        SkipAdminPassword="YES";
-        SkipProductKey="YES";
-        SkipComputerName="YES";
-        SkipDomainMembership="YES";
-        SkipUserData="YES";
-        SkipLocaleSelection="YES";
-        SkipTaskSequence="YES";
-        SkipTimeZone="YES";
-        SkipApplications="YES";
-        SkipBitLocker="YES";
-        SkipSummary="YES";
-        SkipCapture="YES";
-        SkipBDDWelcome="YES";}
-      }
-    "Portable" {
-      $MacAddress = $WPF_MacAddress.Text
-      $ComputerName = $WPF_ComputerName.Text
-      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
-      $Service = $WPF_Service.SelectedItem.ToString()
-      $SearchBase=(Get-ADDomain).DistinguishedName
-      $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
-      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ 
-        OSInstall='YES' ; 
-        OSDComputerName="$ComputerName"; 
-        OrgName= "$Script:OrgName";
-        ComputerName="$ComputerName"; 
-        FullName="$ComputerName"; 
-        TaskSequenceID="$TaskSequenceSelect"; 
-        FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; 
-        TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; 
-        _SMSTSORGNAME="$($WPF_SMSTSORGNAME.Text)"; 
-        JoinDomain="$JoinDomain"; 
-        DomainAdmin="$Script:DomainAdmin"; 
-        DomainAdminDomain="$DomainAdminDomain"; 
-        DomainAdminPassword="$Script:Password"; 
-        MachineObjectOU=$MachineObjectOU;
-        SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
-        UILanguage="$($WPF_UILangage.SelectedItem.ToString())";
-        InputLocale="$Script:InputLocale";
-        KeyboardLocale="$($WPF_KeyboardLocale.SelectedItem.ToString())";
-        Home_Page="$($WPF_Home_Page.Text)";
-        SkipAdminPassword="YES";
-        SkipProductKey="YES";
-        SkipComputerName="YES";
-        SkipDomainMembership="YES";
-        SkipUserData="YES";
-        SkipLocaleSelection="YES";
-        SkipTaskSequence="YES";
-        SkipTimeZone="YES";
-        SkipApplications="YES";
-        SkipBitLocker="YES";
-        SkipSummary="YES";
-        SkipCapture="YES";
-        SkipBDDWelcome="YES";}
-      }
-    "Fixe" { 
-      $MacAddress = $WPF_MacAddress.Text
-      $ComputerName = $WPF_ComputerName.Text
-      $TaskSequenceSelect = $($WPF_TaskSequences.SelectedItems).ID
-      $Service = $WPF_Service.SelectedItem.ToString()
-      $SearchBase=(Get-ADDomain).DistinguishedName
-      $MachineObjectOU ="OU=Ordinateurs "+ $Machine+ "s,OU=Materiels," + $((Get-ADOrganizationalUnit -filter {Name -like $Service} -SearchBase $SearchBase).DistinguishedName)  
-      New-MDTComputer -macAddress "$MacAddress" -description $ComputerName -settings @{ 
-        OSInstall='YES' ; 
-        OSDComputerName="$ComputerName";
-        ComputerName="$ComputerName"; 
-        FullName="$ComputerName";  
-        OrgName= "$Script:OrgName";
-        TaskSequenceID="$TaskSequenceSelect"; 
-        FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; 
-        TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; 
-        _SMSTSORGNAME="$($WPF_SMSTSORGNAME.Text)"; 
-        JoinDomain="$JoinDomain"; 
-        DomainAdmin="$Script:DomainAdmin"; 
-        DomainAdminDomain="$DomainAdminDomain"; 
-        DomainAdminPassword="$Script:Password"; 
-        MachineObjectOU=$MachineObjectOU;
-        SkipFinalSummary="$($WPF_SkipFinalSummary.SelectedItem.ToString())";
-        UILanguage="$($WPF_UILangage.SelectedItem.ToString())";
-        InputLocale="$Script:InputLocale";
-        KeyboardLocale="$($WPF_KeyboardLocale.SelectedItem.ToString())";
-        Home_Page="$($WPF_Home_Page.Text)";
-        SkipAdminPassword="YES";
-        SkipProductKey="YES";
-        SkipComputerName="YES";
-        SkipDomainMembership="YES";
-        SkipUserData="YES";
-        SkipLocaleSelection="YES";
-        SkipTaskSequence="YES";
-        SkipTimeZone="YES";
-        SkipApplications="YES";
-        SkipBitLocker="YES";
-        SkipSummary="YES";
-        SkipCapture="YES";
-        SkipBDDWelcome="YES";}
-      }
-    Default {}
+  catch {
+    $title = "DeployTools"
+    $Message = "Impossible de créer le poste"
+    $Type = "Error"
+      
+    [reflection.assembly]::loadwithpartialname("System.Windows.Forms") | out-null
+    $path = Get-Process -id $pid | Select-Object -ExpandProperty Path
+    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+    $notify = new-object system.windows.forms.notifyicon
+    $notify.icon = $icon
+    $notify.visible = $true
+    $notify.showballoontip(10,$Title,$Message, [system.windows.forms.tooltipicon]::$Type)
+    
   }
 })
 
