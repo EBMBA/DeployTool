@@ -775,7 +775,7 @@ $WPF_Create.Add_Click({
         TaskSequenceID="$TaskSequenceSelect"; 
         FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; 
         TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; 
-        _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
+        _SMSTSORGNAME="$($WPF_SMSTSORGNAME.Text)"; 
         JoinDomain="$JoinDomain"; 
         DomainAdmin="$Script:DomainAdmin"; 
         DomainAdminDomain="$DomainAdminDomain"; 
@@ -816,7 +816,7 @@ $WPF_Create.Add_Click({
         TaskSequenceID="$TaskSequenceSelect"; 
         FinishAction="$($WPF_FinishAction.SelectedItem.ToString())"; 
         TimeZoneName="$($WPF_TimeZoneName.SelectedItem.ToString())"; 
-        _SMSTSORGNAME=$WPF_SMSTSORGNAME; 
+        _SMSTSORGNAME="$($WPF_SMSTSORGNAME.Text)"; 
         JoinDomain="$JoinDomain"; 
         DomainAdmin="$Script:DomainAdmin"; 
         DomainAdminDomain="$DomainAdminDomain"; 
