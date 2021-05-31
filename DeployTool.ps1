@@ -677,6 +677,8 @@ $Form.Add_ContentRendered({
       $GroupsList = New-Object PSObject
       $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
       $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Name -passthru	
+      write-host "----"
+      
       $WPF_TaskSequences.Items.Add($GroupsList) > $null
     }
   }
