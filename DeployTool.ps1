@@ -9,11 +9,7 @@ foreach ($item in $(gci .\assembly\ -Filter *.dll).name) {
 $path = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 
 Import-Module -Name "$Path\services\functions.psm1"
-Import-Module -Name "$Path\services\ConnectServerBDD.psm1"
-
 Import-Module -Name MDTDB
-
-
 #########################################################################
 #                        Load Main Panel                                #
 #########################################################################
@@ -105,16 +101,6 @@ function Validate-IsEmptyTrim ([string] $field) {
 $WPF_Filter.Add_Click({
   $WPF_FilterTextBox.Text='test'
 })
-
-
-
-
-
-
-
-
-
-
 
 #########################################################################
 #                       Page Identification        		                #
@@ -587,18 +573,18 @@ $Sites = ('Croix-Rousse')
 $Machines = ('Fixe', 'Portable', 'Serveur')
 # Ajout des services, des sites et des types de machines dans les combobox 
 foreach ($item in $Services) {
-  $WPF_Service.Items.Add($item) 
+  $WPF_Service.Items.Add($item) | Out-Null
 }
 
 foreach ($item in $Sites) {
-  $WPF_Site.Items.Add($item) 
+  $WPF_Site.Items.Add($item) | Out-Null
 }
 
 foreach ($item in $Machines) {
-  $WPF_Machine.Items.Add($item) 
+  $WPF_Machine.Items.Add($item) | Out-Null
 }
 
-$WPF_Search.Add_Click({
+<#$WPF_Search.Add_Click({
   $Recherche='12'
   $ResultSearch = Search -Filter $Recherche
   if ($ResultSearch -eq $Null) {
@@ -609,7 +595,7 @@ $WPF_Search.Add_Click({
   }
 
 
-})
+})#>
 $WPF_Service.SelectedIndex = 0
 $WPF_Site.SelectedIndex = 0
 $WPF_Machine.SelectedIndex = 0
@@ -676,9 +662,7 @@ $Form.Add_ContentRendered({
     foreach ($TaskSequence in $TaskSequencesList) {
       $GroupsList = New-Object PSObject
       $GroupsList = $GroupsList | Add-Member NoteProperty ID $TaskSequence.ID -passthru
-      $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Name -passthru	
-      write-host "----"
-      
+      $GroupsList = $GroupsList | Add-Member NoteProperty "Nom de la séquence" $TaskSequence.Name -passthru	      
       $WPF_TaskSequences.Items.Add($GroupsList) > $null
     }
   }
