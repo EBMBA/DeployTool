@@ -671,7 +671,7 @@ $WPF_ComputerName.Add_TextChanged({
 $Form.Add_ContentRendered({
   if ($Script:PresenceParameters) {
     [XML]$TaskSequencesFile = Get-Content -path \\$Script:ServeurMDT\$Script:DeploymentShareSMB\Control\TaskSequences.xml
-    $TaskSequencesList = $($TaskSequencesFile.tss.ts | where {$_.enable -eq 'True' -and $_.hide -eq 'False'})
+    $TaskSequencesList = $($TaskSequencesFile.tss.ts | Where-Object {$_.enable -eq 'True'})
   
     foreach ($TaskSequence in $TaskSequencesList) {
       $GroupsList = New-Object PSObject
