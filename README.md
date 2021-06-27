@@ -5,8 +5,8 @@
 ***More soon*** 😀
 
 Requirements :
-    * MDT Server 
-    * Database Server
-    * Active-Directory Module 
-    * MDTDB Module 
+- MDT Server 
+- Database Server
+- Active-Directory Module 
+- MDTDB Module 
 
